@@ -32,8 +32,8 @@ func main() {
 		// TODO: Remove password
 	default:
 		checkStore()
-		checkNumArgs(1, args)
-		lib.Find(args[0])
+		checkNumArgs(0, args)
+		lib.Find(cmd)
 	}
 
 }
