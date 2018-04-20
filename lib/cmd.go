@@ -36,7 +36,7 @@ func Print(dirName string, offset int) {
 }
 
 // Find finds, decrypts, and prints a password to the console
-func Find(dir string) {
+func Find(dir string) string {
 	root := GetRootDir()
 	fname := path.Join(root, dir)
 	if !DirExists(fname) {
@@ -52,7 +52,7 @@ func Find(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(string(pswd))
+	return string(pswd)
 }
 
 // Add inserts a password into storage

@@ -1,15 +1,31 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/olishmollie/passman/lib"
 )
 
 func main() {
 
-	args := os.Args[1:]
+	printPtr := flag.Bool("print", false, "prints password to console")
+	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
+
+	flag.Parse()
+
+	var args []string
+
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-") {
+			continue
+		}
+		args = append(args, arg)
+	}
+	args = args[1:]
 
 	if len(args) == 0 {
 		root := checkStore()
@@ -33,7 +49,11 @@ func main() {
 	default:
 		checkStore()
 		checkNumArgs(0, args)
-		lib.Find(cmd)
+		p := lib.Find(cmd)
+		fmt.Println(p)
+		if *copyPtr {
+			clipboard.WriteAll(p)
+		}
 	}
 
 }
