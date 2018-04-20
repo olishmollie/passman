@@ -12,7 +12,6 @@ import (
 
 func main() {
 
-	printPtr := flag.Bool("print", false, "prints password to console")
 	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
 
 	flag.Parse()
@@ -50,9 +49,10 @@ func main() {
 		checkStore()
 		checkNumArgs(0, args)
 		p := lib.Find(cmd)
-		fmt.Println(p)
 		if *copyPtr {
 			clipboard.WriteAll(p)
+		} else {
+			fmt.Println(p)
 		}
 	}
 
