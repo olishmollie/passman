@@ -34,7 +34,7 @@ func DirExists(d string) bool {
 	if os.IsNotExist(err) {
 		return false
 	} else if err != nil {
-		log.Fatal("error finding directory |", err)
+		log.Fatal("error finding directory | ", err)
 	}
 	return true
 }

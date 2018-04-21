@@ -69,7 +69,7 @@ _passman() {
                 _passman_folders
                 return 0;;
             rm|-copy)
-                _passman_entries 1
+                _passman_entries
                 return 0;;
         esac
     else

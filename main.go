@@ -41,10 +41,11 @@ func main() {
 	case "touch":
 		checkStore()
 		checkNumArgs(2, args)
-		p := lib.NewPswd(args[0], []byte(args[1]))
-		lib.Add(p)
+		lib.Add(args[0], args[1])
 	case "rm":
-		// TODO: Remove password
+		checkStore()
+		checkNumArgs(1, args)
+		lib.Remove(args[0])
 	default:
 		checkStore()
 		checkNumArgs(0, args)

@@ -56,25 +56,29 @@ func Find(dir string) string {
 }
 
 // Add inserts a password into storage
-func Add(p Pswd) {
+func Add(pth, data string) {
 
 	root := GetRootDir()
-	cgdir := path.Join(root, p.GetCg())
-	if !DirExists(cgdir) {
-		err := os.Mkdir(cgdir, 0755)
+	sp := strings.SplitAfter(pth, "/")
+
+	dirName := strings.Join(sp[:len(sp)-1], "")
+	dir := path.Join(root, dirName)
+	if !DirExists(dir) {
+		err := os.MkdirAll(dir, 0755)
 		if err != nil {
-			log.Fatal("error creating cgDir | ", err)
+			log.Fatal("error creating password directory | ", err)
 		}
 	}
 
-	acct := path.Join(cgdir, p.GetAcct())
+	acctName := sp[len(sp)-1]
+	acct := path.Join(dir, acctName)
 	f, err := os.Create(acct)
 	if err != nil {
 		log.Fatal("error making password file | ", err)
 	}
 
 	k := GetKey()
-	ct, err := Encrypt(k, []byte(p.data))
+	ct, err := Encrypt(k, []byte(data))
 	if err != nil {
 		log.Fatal("error encrypting password data | ", err)
 	}
@@ -84,4 +88,18 @@ func Add(p Pswd) {
 		log.Fatal("error writing to file | ", err)
 	}
 
+}
+
+// Remove removes given password from storage
+func Remove(pth string) {
+
+	root := GetRootDir()
+
+	dir := path.Join(root, pth)
+	if DirExists(dir) {
+		err := os.RemoveAll(dir)
+		if err != nil {
+			log.Fatal("error removing password | ", err)
+		}
+	}
 }
