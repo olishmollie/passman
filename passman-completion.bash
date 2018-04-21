@@ -12,22 +12,21 @@ _passman_entries() {
     for item in ${items[@]}; do
         [[ $item =~ /\.[^/]*$ ]] && continue
 
-        # if [[ ${#items[@]} -eq 1 && autoexpand -eq 1 ]]; then
-        #     while [[ -d $item ]]; do
-        #         local subitems=($(compgen -f "$item/"))
-        #         local filtereditems=( )
-        #         for item2 in "${subitems[@]}"; do
-        #             [[ $item2 =~ /\.[^/]*$ ]] && continue
-        #             filtereditems+=( "$item2" )
-        #         done
-        #         if [[ ${#filtereditems[@]} -eq 1 ]]; then
-        #             item="${filtereditems[0]}"
-        #             echo $item
-        #         else
-        #             break
-        #         fi
-        #     done
-        # fi
+        if [[ ${#items[@]} -eq 1 && autoexpand -eq 1 ]]; then
+            while [[ -d $item ]]; do
+                local subitems=($(compgen -f "$item/"))
+                local filtereditems=( )
+                for item2 in "${subitems[@]}"; do
+                    [[ $item2 =~ /\.[^/]*$ ]] && continue
+                    filtereditems+=( "$item2" )
+                done
+                if [[ ${#filtereditems[@]} -eq 1 ]]; then
+                    item="${filtereditems[0]}"
+                else
+                    break
+                fi
+            done
+        fi
 
         [[ -d $item ]] && item="$item/"
         COMPREPLY+=("${item#$prefix}")
@@ -75,7 +74,7 @@ _passman() {
         esac
     else
         COMPREPLY+=( $(compgen -W "${commands} ${options}" -- ${cur}) )
-        _passman_entries
+        _passman_entries 1
     fi
 
     return 0
