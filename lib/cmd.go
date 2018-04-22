@@ -63,8 +63,9 @@ func Add(p, data string) {
 	root := GetRootDir()
 	dir, file := SplitDir(p)
 
-	if !DirExists(path.Join(root, dir)) {
-		err := os.MkdirAll(dir, 0755)
+	newdir := path.Join(root, dir)
+	if !DirExists(newdir) {
+		err := os.MkdirAll(newdir, 0755)
 		if err != nil {
 			log.Fatal("error creating password directory | ", err)
 		}
