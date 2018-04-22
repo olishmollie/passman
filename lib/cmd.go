@@ -1,10 +1,12 @@
 package lib
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path"
 	"strings"
 )
@@ -12,8 +14,8 @@ import (
 const lbar = "|\u2014\u2014 "
 
 // Print prints a tree of the password store
-func Print(dirName string, offset int) {
-	files, err := ioutil.ReadDir(dirName)
+func Print(dir string, offset int) {
+	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal("error reading files in password store | ", err)
 	}
@@ -29,7 +31,7 @@ func Print(dirName string, offset int) {
 		}
 		fmt.Println(string(spaces) + lbar + n)
 		if f.IsDir() {
-			p := path.Join(dirName, n)
+			p := path.Join(dir, n)
 			Print(p, offset+2)
 		}
 	}
@@ -56,23 +58,24 @@ func Find(dir string) string {
 }
 
 // Add inserts a password into storage
-func Add(pth, data string) {
+func Add(p, data string) {
 
 	root := GetRootDir()
-	sp := strings.SplitAfter(pth, "/")
+	dir, file := SplitDir(p)
 
-	dirName := strings.Join(sp[:len(sp)-1], "")
-	dir := path.Join(root, dirName)
-	if !DirExists(dir) {
+	if !DirExists(path.Join(root, dir)) {
 		err := os.MkdirAll(dir, 0755)
 		if err != nil {
 			log.Fatal("error creating password directory | ", err)
 		}
 	}
 
-	acctName := sp[len(sp)-1]
-	acct := path.Join(dir, acctName)
-	f, err := os.Create(acct)
+	if PswdExists(path.Join(root, p)) {
+		fmt.Println("error: that password already exists")
+		os.Exit(1)
+	}
+
+	f, err := os.Create(path.Join(root, dir, file))
 	if err != nil {
 		log.Fatal("error making password file | ", err)
 	}
@@ -91,15 +94,73 @@ func Add(pth, data string) {
 }
 
 // Remove removes given password from storage
-func Remove(pth string) {
+func Remove(p string) {
 
 	root := GetRootDir()
 
-	dir := path.Join(root, pth)
+	dir := path.Join(root, p)
 	if DirExists(dir) {
 		err := os.RemoveAll(dir)
 		if err != nil {
 			log.Fatal("error removing password | ", err)
 		}
+	}
+}
+
+// Edit decrypts and opens password file in editor defined by $VISUAL
+func Edit(p string) {
+
+	root := GetRootDir()
+	f := path.Join(root, p)
+	if !PswdExists(f) {
+		fmt.Println("error: that password doesn't exist")
+		os.Exit(1)
+	}
+
+	k := GetKey()
+
+	// Read encrypted password from file
+	ciphertext, err := ioutil.ReadFile(f)
+	if err != nil {
+		log.Fatal("unable to read password file | ", err)
+	}
+
+	// Decrypt password
+	plaintext, err := Decrypt(k, ciphertext)
+	if err != nil {
+		log.Fatal("unable to decode password file | ", err)
+	}
+
+	// Write plaintext to password file
+	ioutil.WriteFile(f, plaintext, 0775)
+
+	// Open in editor
+	cmd := exec.Command(os.ExpandEnv("$VISUAL"), f)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
+		log.Fatal("unable to run edit command | ", err)
+	}
+
+	// Read edited text from file
+	plaintext, err = ioutil.ReadFile(f)
+	if err != nil {
+		log.Fatal("unable to read from password file after editing | ", err)
+	}
+
+	// For some reason reading edited text from file adds new line. Strip it.
+	plaintext = bytes.TrimRight(plaintext, "\n")
+
+	// Encrypt edited password
+	ciphertext, err = Encrypt(k, plaintext)
+	if err != nil {
+		log.Fatal("unable to re-encrypt password file after editing | ", err)
+	}
+
+	// Write encrypted password back to file
+	err = ioutil.WriteFile(f, ciphertext, 0755)
+	if err != nil {
+		log.Fatal("unable to write re-encrypted password to file after editing | ", err)
 	}
 }

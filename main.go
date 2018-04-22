@@ -13,11 +13,8 @@ import (
 func main() {
 
 	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
-
 	flag.Parse()
-
 	var args []string
-
 	for _, arg := range os.Args {
 		if strings.HasPrefix(arg, "-") {
 			continue
@@ -46,6 +43,10 @@ func main() {
 		checkStore()
 		checkNumArgs(1, args)
 		lib.Remove(args[0])
+	case "edit":
+		checkStore()
+		checkNumArgs(1, args)
+		lib.Edit(args[0])
 	default:
 		checkStore()
 		checkNumArgs(0, args)

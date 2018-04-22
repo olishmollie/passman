@@ -48,6 +48,21 @@ _passman_folders() {
     local items=( $(compgen -d $prefix$cur) )
     for item in ${items[@]}; do
         [[ $item == $prefix.* ]] && continue
+        if [[ ${#items[@]} -eq 1 && autoexpand -eq 1 ]]; then
+            while [[ -d $item ]]; do
+                local subitems=($(compgen -f "$item/"))
+                local filtereditems=( )
+                for item2 in "${subitems[@]}"; do
+                    [[ $item2 =~ /\.[^/]*$ ]] && continue
+                    filtereditems+=( "$item2" )
+                done
+                if [[ ${#filtereditems[@]} -eq 1 && -d ${filtereditems[0]} ]]; then
+                    item="${filtereditems[0]}"
+                else
+                    break
+                fi
+            done
+        fi
         COMPREPLY+=("${item#$prefix}/")
         compopt -o nospace
     done
@@ -70,6 +85,9 @@ _passman() {
                 return 0;;
             rm|-copy)
                 _passman_entries
+                return 0;;
+            edit)
+                _passman_entries 1
                 return 0;;
         esac
     else
