@@ -41,8 +41,8 @@ func Print(dir string, offset int) {
 func Find(dir string) string {
 	root := GetRootDir()
 	fname := path.Join(root, dir)
-	if !DirExists(fname) {
-		fmt.Println("error: that password doesn't exist. did you remember a category prefix?")
+	if !PswdExists(fname) {
+		fmt.Println("error: that password doesn't exist.")
 		os.Exit(1)
 	}
 	ct, err := ioutil.ReadFile(fname)
