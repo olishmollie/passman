@@ -13,6 +13,8 @@ import (
 func main() {
 
 	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
+	noSymPtr := flag.Bool("nosym", false, "generate a password with no symbols")
+	lenPtr := flag.Int("len", 0, "length of generated password, defaults to random int between 8 and 20")
 	flag.Parse()
 	var args []string
 	for _, arg := range os.Args {
@@ -47,6 +49,15 @@ func main() {
 		checkStore()
 		checkNumArgs(1, args)
 		lib.Edit(args[0])
+	case "generate":
+		checkNumArgs(0, args)
+		var s string
+		s = lib.Generate(*lenPtr, *noSymPtr)
+		if *copyPtr {
+			clipboard.WriteAll(s)
+		} else {
+			fmt.Println(s)
+		}
 	default:
 		checkStore()
 		checkNumArgs(0, args)

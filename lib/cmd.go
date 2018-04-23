@@ -11,10 +11,9 @@ import (
 	"strings"
 )
 
-const lbar = "|\u2014\u2014 "
-
 // Print prints a tree of the password store
 func Print(dir string, offset int) {
+	const lbar = "|\u2014\u2014 "
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		log.Fatal("error reading files in password store | ", err)

@@ -75,23 +75,31 @@ _passman() {
     local root options commands 
     COMPREPLY=()
     root=$HOME/.passman
-    commands="touch rm edit"
+    commands="touch rm edit generate"
     options="-copy"
+    generate_options="-nosym -len"
 
     if [[ $COMP_CWORD -gt 1 ]]; then
         case "${COMP_WORDS[1]}" in
             touch)
                 _passman_folders
                 return 0;;
-            rm|-copy)
+            rm)
                 _passman_entries
+                return 0;;
+            -copy)
+                _passman_entries
+                COMPREPLY+=( $(compgen -W "generate ${generate_options}" -- ${cur}) )
                 return 0;;
             edit)
                 _passman_entries 1
                 return 0;;
+            -nosym|-len*)
+                COMPREPLY=( $(compgen -W "${optons} generate" -- ${cur}) )
+
         esac
     else
-        COMPREPLY+=( $(compgen -W "${commands} ${options}" -- ${cur}) )
+        COMPREPLY+=( $(compgen -W "${commands} ${options} ${generate_options}" -- ${cur}) )
         _passman_entries 1
     fi
 
