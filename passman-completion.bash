@@ -1,6 +1,5 @@
 _passman_entries() {
     prefix="${PASSMAN_DIR:-$HOME/.passman/}"
-    # prefix="${prefix%/}/"
     autoexpand=${1:-0}
 
     local IFS=$'\n'
@@ -107,5 +106,4 @@ _passman() {
 }
 
 complete -o filenames -F _passman passman
-# _passman_entries 1
 
