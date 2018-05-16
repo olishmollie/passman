@@ -187,11 +187,13 @@ func Dump(dir, outfile string) {
 				log.Fatal("cannot read from pswd file | ", err)
 			}
 			t, err := Decrypt(k, c)
-			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0775)
+			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 			if err != nil {
 				log.Fatal("Cannot open file for appending | ", err)
 			}
-			_, err = f.WriteString(p + " ")
+			root := GetRootDir()
+			w := strings.TrimPrefix(p, root+"/")
+			_, err = f.WriteString(w + " ")
 			_, err = f.Write(t)
 			_, err = f.WriteString("\n")
 			if err != nil {
@@ -201,3 +203,13 @@ func Dump(dir, outfile string) {
 		}
 	}
 }
+
+// ALTERNATE IMPLEMENTATION
+// Dump writes unecrypted passwords to outfile
+// func Dump(dir, outfile string) {
+// 	cmd := exec.Command("dump.sh", outfile)
+// 	err := cmd.Run()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// }
