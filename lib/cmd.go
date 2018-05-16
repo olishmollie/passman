@@ -165,7 +165,7 @@ func Edit(p string) {
 	}
 }
 
-// Dump writes unecrypted passwords to a file.
+// Dump writes unecrypted passwords to outfile.
 func Dump(dir, outfile string) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
