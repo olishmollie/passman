@@ -6,5 +6,5 @@ do
   then
     continue
   fi
-  echo "${i#$HOME/.passman/} $(passman ${i#~/.passman/})" >> $1
+  echo "${i#$HOME/.passman/} $(passman ${i#$HOME/passman/})" >> $1
 done
