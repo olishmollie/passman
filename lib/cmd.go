@@ -187,15 +187,16 @@ func Dump(dir, outfile string) {
 				log.Fatal("cannot read from pswd file | ", err)
 			}
 			t, err := Decrypt(k, c)
+			if err != nil {
+				log.Fatal("cannot decrypt pswd for ", dir, "\n", err)
+			}
 			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 			if err != nil {
 				log.Fatal("Cannot open file for appending | ", err)
 			}
 			root := GetRootDir()
-			w := strings.TrimPrefix(p, root+"/")
-			_, err = f.WriteString(w + " ")
-			_, err = f.Write(t)
-			_, err = f.WriteString("\n")
+			w := strings.TrimPrefix(p, root+"/") + " " + string(t) + "\n"
+			_, err = f.WriteString(w)
 			if err != nil {
 				log.Fatal("cannot write to dump file | ", err)
 			}
