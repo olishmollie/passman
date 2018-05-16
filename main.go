@@ -58,6 +58,10 @@ func main() {
 		} else {
 			fmt.Println(s)
 		}
+	case "dump":
+		root := checkStore()
+		checkNumArgs(1, args)
+		lib.Dump(root, args[0])
 	default:
 		checkStore()
 		checkNumArgs(0, args)

@@ -164,3 +164,40 @@ func Edit(p string) {
 		log.Fatal("unable to write re-encrypted password to file after editing | ", err)
 	}
 }
+
+// Dump writes unecrypted passwords to a file.
+func Dump(dir, outfile string) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		log.Fatal("error reading files in password store | ", err)
+	}
+	for _, f := range files {
+		n := f.Name()
+		if strings.HasPrefix(n, ".") {
+			continue
+		}
+		if f.IsDir() {
+			p := path.Join(dir, n)
+			Dump(p, outfile)
+		} else {
+			p := path.Join(dir, n)
+			k := GetKey()
+			c, err := ioutil.ReadFile(p)
+			if err != nil {
+				log.Fatal("cannot read from pswd file | ", err)
+			}
+			t, err := Decrypt(k, c)
+			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0775)
+			if err != nil {
+				log.Fatal("Cannot open file for appending | ", err)
+			}
+			_, err = f.WriteString(p + " ")
+			_, err = f.Write(t)
+			_, err = f.WriteString("\n")
+			if err != nil {
+				log.Fatal("cannot write to dump file | ", err)
+			}
+			f.Close()
+		}
+	}
+}
