@@ -3,7 +3,6 @@ package lib
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"path"
 )
@@ -19,14 +18,14 @@ func Init() error {
 		reader := bufio.NewReader(os.Stdin)
 		c, err := reader.ReadByte()
 		if err != nil {
-			log.Fatal("unable to read byte from stdin | ", err)
+			FatalError(err, "could not read byte from stdin")
 		}
 		switch c {
 		case 'y', 'Y':
 			fmt.Println("Reinitializing...")
-			err := os.Remove(root)
+			err := os.RemoveAll(root)
 			if err != nil {
-				log.Fatal("unable to remove root dir on init | ", err)
+				FatalError(err, "could not remove pswd store")
 			}
 		default:
 			os.Exit(0)
@@ -37,7 +36,7 @@ func Init() error {
 	if !DirExists(root) {
 		err := os.Mkdir(root, 0755)
 		if err != nil {
-			log.Fatal(err)
+			FatalError(err, "could not create pswd store")
 		}
 	}
 
@@ -46,18 +45,18 @@ func Init() error {
 	pub := path.Join(root, ".fpubkey")
 	f, err := os.Create(pub)
 	if err != nil {
-		log.Fatal("error creating pub key file:", err)
+		FatalError(err, "could not create key file")
 	}
 
 	k := GenKey(pswd)
 	_, err = f.Write(k[:])
 	if err != nil {
-		log.Fatal("error writing to file:", err)
+		FatalError(err, "could not write key to key file")
 	}
 
 	err = f.Close()
 	if err != nil {
-		log.Fatal(err)
+		FatalError(err, "could not close key file")
 	}
 
 	return nil

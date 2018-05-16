@@ -9,7 +9,6 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	"log"
 	"path"
 )
 
@@ -61,7 +60,7 @@ func GetKey() []byte {
 	kp := path.Join(root, ".fpubkey")
 	d, err := ioutil.ReadFile(kp)
 	if err != nil {
-		log.Fatal("error reading key from file |", err)
+		FatalError(err, "could not read encryption key from password store")
 	}
 	return d
 }

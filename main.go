@@ -78,8 +78,7 @@ func main() {
 func checkStore() string {
 	root := lib.GetRootDir()
 	if !lib.DirExists(root) {
-		fmt.Println("error: password store is empty. try `passman init`.")
-		os.Exit(1)
+		lib.FatalError(nil, "no pswd store. Try `passman init`.")
 	}
 	return root
 }

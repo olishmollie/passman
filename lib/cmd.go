@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -16,7 +15,7 @@ func Print(dir string, offset int) {
 	const lbar = "|\u2014\u2014 "
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		log.Fatal("error reading files in password store | ", err)
+		FatalError(err, "could not read files in password store")
 	}
 	for _, f := range files {
 		var spaces []rune
@@ -41,17 +40,16 @@ func Find(dir string) string {
 	root := GetRootDir()
 	fname := path.Join(root, dir)
 	if !PswdExists(fname) {
-		fmt.Println("error: that password doesn't exist.")
-		os.Exit(1)
+		FatalError(nil, "cannot find pswd for "+fname)
 	}
 	ct, err := ioutil.ReadFile(fname)
 	if err != nil {
-		log.Fatal(err)
+		FatalError(err, "could not read pswd for "+fname)
 	}
 	k := GetKey()
 	pswd, err := Decrypt(k, ct)
 	if err != nil {
-		log.Fatal(err)
+		FatalError(err, "could not decrypt pswd for "+fname)
 	}
 	return string(pswd)
 }
@@ -66,55 +64,50 @@ func Add(p, data string) {
 	if !DirExists(newdir) {
 		err := os.MkdirAll(newdir, 0755)
 		if err != nil {
-			log.Fatal("error creating password directory | ", err)
+			FatalError(err, "could not create password store")
 		}
 	}
 
 	if PswdExists(path.Join(root, p)) {
-		fmt.Println("error: that password already exists")
-		os.Exit(1)
+		FatalError(nil, "that password already exists. Try `passman edit`.")
 	}
 
 	f, err := os.Create(path.Join(root, dir, file))
 	if err != nil {
-		log.Fatal("error making password file | ", err)
+		FatalError(err, "could not create password")
 	}
 
 	k := GetKey()
 	ct, err := Encrypt(k, []byte(data))
 	if err != nil {
-		log.Fatal("error encrypting password data | ", err)
+		FatalError(err, "could not encrypt password for "+dir)
 	}
 
 	_, err = f.Write(ct)
 	if err != nil {
-		log.Fatal("error writing to file | ", err)
+		FatalError(err, "could not write pswd for "+dir)
 	}
 
 }
 
 // Remove removes given password from storage
 func Remove(p string) {
-
 	root := GetRootDir()
-
 	dir := path.Join(root, p)
 	if DirExists(dir) {
 		err := os.RemoveAll(dir)
 		if err != nil {
-			log.Fatal("error removing password | ", err)
+			FatalError(err, "could not remove pswd for "+dir)
 		}
 	}
 }
 
 // Edit decrypts and opens password file in editor defined by $VISUAL
 func Edit(p string) {
-
 	root := GetRootDir()
 	f := path.Join(root, p)
 	if !PswdExists(f) {
-		fmt.Println("error: that password doesn't exist")
-		os.Exit(1)
+		FatalError(nil, "could not find password for "+p)
 	}
 
 	k := GetKey()
@@ -122,17 +115,20 @@ func Edit(p string) {
 	// Read encrypted password from file
 	ciphertext, err := ioutil.ReadFile(f)
 	if err != nil {
-		log.Fatal("unable to read password file | ", err)
+		FatalError(err, "could not read pswd for "+p)
 	}
 
 	// Decrypt password
 	plaintext, err := Decrypt(k, ciphertext)
 	if err != nil {
-		log.Fatal("unable to decode password file | ", err)
+		FatalError(err, "could not decode pswd for "+p)
 	}
 
 	// Write plaintext to password file
-	ioutil.WriteFile(f, plaintext, 0775)
+	err = ioutil.WriteFile(f, plaintext, 0775)
+	if err != nil {
+		FatalError(err, "could not write pswd for "+p)
+	}
 
 	// Open in editor
 	cmd := exec.Command(os.ExpandEnv("$VISUAL"), f)
@@ -140,13 +136,13 @@ func Edit(p string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		log.Fatal("unable to run edit command | ", err)
+		FatalError(err, "could not open editor assigned to $VISUAL")
 	}
 
 	// Read edited text from file
 	plaintext, err = ioutil.ReadFile(f)
 	if err != nil {
-		log.Fatal("unable to read from password file after editing | ", err)
+		FatalError(err, "could not read file after editing")
 	}
 
 	// For some reason reading edited text from file adds new line. Strip it.
@@ -155,13 +151,13 @@ func Edit(p string) {
 	// Encrypt edited password
 	ciphertext, err = Encrypt(k, plaintext)
 	if err != nil {
-		log.Fatal("unable to re-encrypt password file after editing | ", err)
+		FatalError(err, "could not encrypt pswd for "+p+" after editing")
 	}
 
 	// Write encrypted password back to file
 	err = ioutil.WriteFile(f, ciphertext, 0755)
 	if err != nil {
-		log.Fatal("unable to write re-encrypted password to file after editing | ", err)
+		FatalError(err, "could not write encrypted pswd to file after editing")
 	}
 }
 
@@ -169,7 +165,7 @@ func Edit(p string) {
 func Dump(dir, outfile string) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		log.Fatal("error reading files in password store | ", err)
+		FatalError(err, "could not read files from password store")
 	}
 	for _, f := range files {
 		n := f.Name()
@@ -184,21 +180,21 @@ func Dump(dir, outfile string) {
 			k := GetKey()
 			c, err := ioutil.ReadFile(p)
 			if err != nil {
-				log.Fatal("cannot read from pswd file | ", err)
+				FatalError(err, "could not read pswd for "+p)
 			}
 			t, err := Decrypt(k, c)
 			if err != nil {
-				log.Fatal("cannot decrypt pswd for ", dir, "\n", err)
+				FatalError(err, "could not decrypt pswd for "+dir)
 			}
 			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
 			if err != nil {
-				log.Fatal("Cannot open file for appending | ", err)
+				FatalError(err, "could not open dump file "+outfile)
 			}
 			root := GetRootDir()
 			w := strings.TrimPrefix(p, root+"/") + " " + string(t) + "\n"
 			_, err = f.WriteString(w)
 			if err != nil {
-				log.Fatal("cannot write to dump file | ", err)
+				FatalError(err, "could not write to dump file")
 			}
 			f.Close()
 		}

@@ -25,7 +25,7 @@ func getHomeDir() string {
 func getUser() *user.User {
 	u, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		FatalError(err, "could not find current user")
 	}
 	return u
 }
@@ -35,7 +35,7 @@ func PswdExists(p string) bool {
 	dir, file := SplitDir(p)
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
-		log.Fatal("error finding password | ", err)
+		FatalError(err, "could not find pswd "+p)
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -54,7 +54,7 @@ func DirExists(d string) bool {
 	if os.IsNotExist(err) {
 		return false
 	} else if err != nil {
-		log.Fatal("error finding directory | ", err)
+		FatalError(err, "could not find dir "+d)
 	}
 	return true
 }
@@ -64,7 +64,7 @@ func Getln() []byte {
 	reader := bufio.NewReader(os.Stdin)
 	in, err := reader.ReadBytes('\n')
 	if err != nil {
-		log.Fatal(err)
+		FatalError(err, "could not read from stdin")
 	}
 	out := bytes.TrimRight(in, "\n")
 	return out
@@ -76,4 +76,9 @@ func SplitDir(p string) (dir, file string) {
 	dir = strings.Join(sp[:len(sp)-1], "")
 	file = sp[len(sp)-1]
 	return
+}
+
+// FatalError logs an error message to stderr and exits
+func FatalError(err error, msg string) {
+	log.Fatal("fatal: "+msg+"\n", err)
 }
