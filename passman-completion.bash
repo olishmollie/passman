@@ -67,6 +67,18 @@ _passman_folders() {
     done
 }
 
+_passman_files() { 
+  local cur
+  COMPREPLY=()
+  cur=${COMP_WORDS[COMP_CWORD]}
+  i="."
+  for j in $( compgen -f "$i/$cur" )
+  do
+    [ -d "$j" ] && continue
+    COMPREPLY+=("${j#$i/}")
+  done
+}
+
 _passman() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD - 1]}"
@@ -74,7 +86,7 @@ _passman() {
     local root options commands 
     COMPREPLY=()
     root=$HOME/.passman
-    commands="touch rm edit generate"
+    commands="import dump touch rm edit generate"
     options="-copy"
     generate_options="-nosym -len"
 
@@ -85,6 +97,9 @@ _passman() {
                 return 0;;
             rm)
                 _passman_entries
+                return 0;;
+            import)
+                _passman_files
                 return 0;;
             -copy)
                 _passman_entries
