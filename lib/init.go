@@ -1,36 +1,15 @@
 package lib
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path"
 )
 
 // Init initializes passman by creating a storage directory and generating a cipher key
-func Init() error {
+func Init() {
 
 	root := GetRootDir()
-	if DirExists(root) {
-		fmt.Println("Warning: password store is currently initialized.")
-		fmt.Println("Reinitialization will result in the loss of your passwords.")
-		fmt.Println("Do you wish to reinitialize? (y/N) ")
-		reader := bufio.NewReader(os.Stdin)
-		c, err := reader.ReadByte()
-		if err != nil {
-			FatalError(err, "could not read byte from stdin")
-		}
-		switch c {
-		case 'y', 'Y':
-			fmt.Println("Reinitializing...")
-			err := os.RemoveAll(root)
-			if err != nil {
-				FatalError(err, "could not remove pswd store")
-			}
-		default:
-			os.Exit(0)
-		}
-	}
 
 	fmt.Println("Welcome to Passman!")
 	if !DirExists(root) {
@@ -58,8 +37,6 @@ func Init() error {
 	if err != nil {
 		FatalError(err, "could not close key file")
 	}
-
-	return nil
 }
 
 func getUserKey() []byte {
