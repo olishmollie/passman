@@ -80,5 +80,8 @@ func SplitDir(p string) (dir, file string) {
 
 // FatalError logs an error message to stderr and exits
 func FatalError(err error, msg string) {
+	if err == nil {
+		log.Fatal("fatal: " + msg + "\n")
+	}
 	log.Fatal("fatal: "+msg+"\n", err)
 }

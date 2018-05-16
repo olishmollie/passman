@@ -62,6 +62,10 @@ func main() {
 		root := checkStore()
 		checkNumArgs(1, args)
 		lib.Dump(root, args[0])
+	case "import":
+		checkStore()
+		checkNumArgs(1, args)
+		lib.Import(args[0])
 	default:
 		checkStore()
 		checkNumArgs(0, args)
