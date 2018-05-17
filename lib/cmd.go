@@ -47,7 +47,7 @@ func Find(dir string) string {
 	if err != nil {
 		FatalError(err, "could not read pswd for "+fname)
 	}
-	k := GetKey()
+	k := getKey()
 	pswd, err := Decrypt(k, ct)
 	if err != nil {
 		FatalError(err, "could not decrypt pswd for "+fname)
@@ -78,7 +78,7 @@ func Add(p, data string) {
 		FatalError(err, "could not create password")
 	}
 
-	k := GetKey()
+	k := getKey()
 	ct, err := Encrypt(k, []byte(data))
 	if err != nil {
 		FatalError(err, "could not encrypt password for "+dir)
@@ -111,7 +111,7 @@ func Edit(p string) {
 		FatalError(nil, "could not find password for "+p)
 	}
 
-	k := GetKey()
+	k := getKey()
 
 	// Read encrypted password from file
 	ciphertext, err := ioutil.ReadFile(f)
@@ -188,7 +188,7 @@ func dumpRec(dir, outfile string) {
 			dumpRec(p, outfile)
 		} else {
 			p := path.Join(dir, n)
-			k := GetKey()
+			k := getKey()
 			c, err := ioutil.ReadFile(p)
 			if err != nil {
 				FatalError(err, "could not read pswd for "+p)
@@ -227,4 +227,34 @@ func Import(infile string) {
 		d := strings.Split(t, " ")
 		Add(d[0], d[1])
 	}
+}
+
+// Lock dumps the password store into an encrypted file and removes all passwords and .fpubkey
+// CAUTION: if you forget the password you used to generate the encryption key, you will not
+// be able to unencrypt your passwords.
+func Lock() {
+	yes := Getln("CAUTION: if you forget the password you used to generate your encryption key,\nyou will not be able to unencrypt your passwords.\nDo you wish to continue? (y/N) ")
+	if string(yes) == "y" || string(yes) == "Y" {
+		fmt.Println("Locking passman...")
+		k := getKey()
+		root := GetRootDir()
+		lockfile := path.Join(root, "passman.lock")
+		Dump(root, lockfile)
+		EncryptFile(k, lockfile)
+		RemoveContents(root, "passman.lock")
+	} else {
+		fmt.Println("Lock operation aborted.")
+	}
+}
+
+// Unlock takes the passman.lock file, unencrypts it and imports all passwords into the password store
+func Unlock() {
+	pswd := getUserKey()
+	writeUserKey(pswd)
+	root := GetRootDir()
+	lockfile := path.Join(root, "passman.lock")
+	k := getKey()
+	DecryptFile(k, lockfile)
+	Import(lockfile)
+	os.Remove(lockfile)
 }

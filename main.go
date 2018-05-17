@@ -4,11 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/atotto/clipboard"
 	"github.com/olishmollie/passman/lib"
 )
+
+var root = lib.GetRootDir()
 
 func main() {
 
@@ -26,7 +29,8 @@ func main() {
 	args = args[1:]
 
 	if len(args) == 0 {
-		root := checkStore()
+		checkLock()
+		checkStore()
 		lib.Print(root, 0)
 		os.Exit(0)
 	}
@@ -36,17 +40,23 @@ func main() {
 
 	switch cmd {
 	case "init":
+		checkLock()
 		lib.Init()
 	case "touch":
+		checkLock()
 		checkStore()
+		checkFPubKey()
 		checkNumArgs(2, args)
 		lib.Add(args[0], args[1])
 	case "rm":
+		checkLock()
 		checkStore()
 		checkNumArgs(1, args)
 		lib.Remove(args[0])
 	case "edit":
+		checkLock()
 		checkStore()
+		checkFPubKey()
 		checkNumArgs(1, args)
 		lib.Edit(args[0])
 	case "generate":
@@ -59,14 +69,32 @@ func main() {
 			fmt.Println(s)
 		}
 	case "dump":
-		root := checkStore()
+		checkLock()
+		checkStore()
+		checkFPubKey()
 		checkNumArgs(1, args)
 		lib.Dump(root, args[0])
 	case "import":
+		checkLock()
 		checkStore()
+		checkFPubKey()
 		checkNumArgs(1, args)
 		lib.Import(args[0])
+	case "lock":
+		checkLock()
+		checkStore()
+		checkFPubKey()
+		checkNumArgs(0, args)
+		lib.Lock()
+	case "unlock":
+		if locked() {
+			lib.Unlock()
+		} else {
+			fmt.Println("passman is not locked")
+		}
 	default:
+		checkLock()
+		checkFPubKey()
 		checkStore()
 		checkNumArgs(0, args)
 		p := lib.Find(cmd)
@@ -79,12 +107,36 @@ func main() {
 
 }
 
-func checkStore() string {
-	root := lib.GetRootDir()
+func checkStore() {
 	if !lib.DirExists(root) {
-		lib.FatalError(nil, "no pswd store. Try `passman init`.")
+		lib.FatalError(nil, "no pswd store. try `passman init`")
 	}
-	return root
+}
+
+func checkFPubKey() {
+	fpubkey := path.Join(root, ".fpubkey")
+	if _, err := os.Stat(fpubkey); err != nil {
+		if os.IsNotExist(err) {
+			lib.FatalError(nil, "no encryption key. try `passman init`")
+		} else {
+			lib.FatalError(err, "could not check status of pswd store")
+		}
+	}
+}
+
+func checkLock() {
+	if locked() {
+		fmt.Println("passman is locked. try `passman unlock`")
+		os.Exit(0)
+	}
+}
+
+func locked() bool {
+	lockfile := path.Join(root, "passman.lock")
+	if _, err := os.Stat(lockfile); err == nil {
+		return true
+	}
+	return false
 }
 
 func checkNumArgs(num int, args []string) {

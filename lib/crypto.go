@@ -4,12 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/base64"
 	"errors"
 	"io"
 	"io/ioutil"
-	"path"
 )
 
 // Encrypt takes a key and text, and returns the encrypted text
@@ -27,6 +25,22 @@ func Encrypt(key, text []byte) ([]byte, error) {
 	cfb := cipher.NewCFBEncrypter(block, iv)
 	cfb.XORKeyStream(ciphertext[aes.BlockSize:], []byte(b))
 	return ciphertext, nil
+}
+
+// EncryptFile takes a key and a filename, and encrypts the file
+func EncryptFile(key []byte, filename string) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		FatalError(err, "could not read data from file to be encrypted")
+	}
+	cipher, err := Encrypt(key, data)
+	if err != nil {
+		FatalError(err, "could not encrypt file data")
+	}
+	err = ioutil.WriteFile(filename, cipher, 0666)
+	if err != nil {
+		FatalError(err, "could not write encrypted data to file")
+	}
 }
 
 // Decrypt takes a key and encrypted text, and returns the unencrypted text
@@ -49,18 +63,18 @@ func Decrypt(key, text []byte) ([]byte, error) {
 	return data, nil
 }
 
-// GenKey takes a passphrase and generates a key
-func GenKey(p []byte) [32]byte {
-	return sha256.Sum256(p)
-}
-
-// GetKey reads from proper file and returns cipher key
-func GetKey() []byte {
-	root := GetRootDir()
-	kp := path.Join(root, ".fpubkey")
-	d, err := ioutil.ReadFile(kp)
+// DecryptFile decrypts a file and writes unencrypted data to file
+func DecryptFile(key []byte, filename string) {
+	cipher, err := ioutil.ReadFile(filename)
 	if err != nil {
-		FatalError(err, "could not read encryption key from password store")
+		FatalError(err, "could not read data from file to be decrypted")
 	}
-	return d
+	data, err := Decrypt(key, cipher)
+	if err != nil {
+		FatalError(err, "could not decrypt file data")
+	}
+	err = ioutil.WriteFile(filename, data, 0666)
+	if err != nil {
+		FatalError(err, "could not write encrypted data to file")
+	}
 }

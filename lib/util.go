@@ -3,11 +3,14 @@ package lib
 import (
 	"bufio"
 	"bytes"
+	"crypto/sha256"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -60,7 +63,8 @@ func DirExists(d string) bool {
 }
 
 // Getln reads a newline delimted string from stdin
-func Getln() []byte {
+func Getln(msg string) []byte {
+	fmt.Print(msg)
 	reader := bufio.NewReader(os.Stdin)
 	in, err := reader.ReadBytes('\n')
 	if err != nil {
@@ -84,4 +88,47 @@ func FatalError(err error, msg string) {
 		log.Fatal("fatal: " + msg + "\n")
 	}
 	log.Fatal("fatal: "+msg+"\n", err)
+}
+
+// RemoveContents removes a directory's contents, skipping any filenames passed as secondary arguments.
+func RemoveContents(dir string, except ...string) {
+	d, err := os.Open(dir)
+	if err != nil {
+		FatalError(err, "could not open pswd store")
+	}
+	defer d.Close()
+	names, err := d.Readdirnames(-1)
+	if err != nil {
+		FatalError(err, "could not read dirnames in pswd store")
+	}
+	for _, name := range names {
+		skip := false
+		for _, el := range except {
+			if name == el {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			continue
+		}
+		err = os.RemoveAll(filepath.Join(dir, name))
+		if err != nil {
+			FatalError(err, "could not remove pswds from pswd store")
+		}
+	}
+}
+
+func genKey(p []byte) [32]byte {
+	return sha256.Sum256(p)
+}
+
+func getKey() []byte {
+	root := GetRootDir()
+	kp := path.Join(root, ".fpubkey")
+	d, err := ioutil.ReadFile(kp)
+	if err != nil {
+		FatalError(err, "could not read encryption key from password store")
+	}
+	return d
 }
