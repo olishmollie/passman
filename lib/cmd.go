@@ -164,6 +164,16 @@ func Edit(p string) {
 
 // Dump writes unecrypted passwords to outfile.
 func Dump(dir, outfile string) {
+	if _, err := os.Stat(outfile); err == nil {
+		err = os.Remove(outfile)
+		if err != nil {
+			FatalError(err, "could not remove existing outfile")
+		}
+	}
+	dumpRec(dir, outfile)
+}
+
+func dumpRec(dir, outfile string) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		FatalError(err, "could not read files from password store")
@@ -175,7 +185,7 @@ func Dump(dir, outfile string) {
 		}
 		if f.IsDir() {
 			p := path.Join(dir, n)
-			Dump(p, outfile)
+			dumpRec(p, outfile)
 		} else {
 			p := path.Join(dir, n)
 			k := GetKey()
@@ -187,7 +197,7 @@ func Dump(dir, outfile string) {
 			if err != nil {
 				FatalError(err, "could not decrypt pswd for "+dir)
 			}
-			f, err := os.OpenFile(outfile, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0666)
+			f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 			if err != nil {
 				FatalError(err, "could not open dump file "+outfile)
 			}
