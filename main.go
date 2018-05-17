@@ -171,8 +171,12 @@ import <infile> - imports passwords from infile. infile must be newline delimite
 
 init - create password store if it doesn't exist, and generate encryption key
 
+lock - encrypts and dumps all passwords into one file
+
 rm <pswd_file> - remove <pswd_file> from pswd store
 
 touch <pswd_file> - add <pswd_file> to pswd store
+
+unlock - undoes lock operation
 `)
 }
