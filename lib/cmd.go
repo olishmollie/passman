@@ -11,6 +11,23 @@ import (
 	"strings"
 )
 
+// Init initializes passman by creating a storage directory and generating a cipher key
+func Init() {
+
+	root := GetRootDir()
+
+	fmt.Println("Welcome to Passman!")
+	if !DirExists(root) {
+		err := os.Mkdir(root, 0755)
+		if err != nil {
+			FatalError(err, "could not create pswd store")
+		}
+	}
+
+	pswd := getUserKey()
+	writeUserKey(pswd)
+}
+
 // Print prints a tree of the password store
 func Print(dir string, offset int) {
 	const lbar = "|\u2014\u2014 "
@@ -87,6 +104,11 @@ func Add(p, data string) {
 	_, err = f.Write(ct)
 	if err != nil {
 		FatalError(err, "could not write pswd for "+dir)
+	}
+
+	err = f.Close()
+	if err != nil {
+		FatalError(err, "could not close pswd for "+dir)
 	}
 
 }
