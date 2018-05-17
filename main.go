@@ -97,7 +97,7 @@ func checkNumArgs(num int, args []string) {
 func printUsage() {
 	fmt.Print(
 		`usage: passman [opts...] [command] [args...]
-ex: passman touch Category/Website/username pswd
+example: passman touch Category/Website/username pswd
 commands: dump edit generate import init rm touch
 	passman - prints a tree of pswds in store
 

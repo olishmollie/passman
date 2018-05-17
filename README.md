@@ -14,8 +14,9 @@ Passman stores encrypted passwords in a directory in your home folder. To get st
 Passman comes bundled with a bash completion script. To use it, source passman-completion.bash from your bashrc or bash_profile.
 
 #### Usage
-```usage: passman [opts...] [command] [args...]
-ex: passman touch Category/Website/username pswd
+```
+usage: passman [opts...] [command] [args...]
+example: passman touch Category/Website/username pswd
 commands: dump edit generate import init rm touch
 	passman - prints a tree of pswds in store
 
