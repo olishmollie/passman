@@ -219,6 +219,7 @@ func dumpRec(dir, outfile string) {
 			if err != nil {
 				FatalError(err, "could not decrypt pswd for "+dir)
 			}
+			// TODO - dump should default to printing to stdout
 			f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 			if err != nil {
 				FatalError(err, "could not open dump file "+outfile)
