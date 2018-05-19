@@ -13,19 +13,36 @@ import (
 
 // Init initializes passman by creating a storage directory and generating a cipher key
 func Init() {
-
-	root := GetRootDir()
-
-	fmt.Println("Welcome to Passman!")
-	if !DirExists(root) {
-		err := os.Mkdir(root, 0755)
+	if !DirExists(Root) {
+		err := os.Mkdir(Root, 0755)
 		if err != nil {
 			FatalError(err, "could not create pswd store")
 		}
+		Log("created password store at ~/.passman")
 	}
+	key := generateEncryptionKey()
+	Log("writing encryption key to .passman/.key...")
+	writeEncryptionKey(key)
+	Log("passman initialized successfully")
+}
 
-	pswd := getUserKey()
-	writeUserKey(pswd)
+func writeEncryptionKey(key []byte) {
+	f, err := os.Create(Keyfile)
+	if err != nil {
+		FatalError(err, "could not create key file")
+	}
+	_, err = f.Write(key[:])
+	if err != nil {
+		FatalError(err, "could not write key to key file")
+	}
+	err = f.Close()
+	if err != nil {
+		FatalError(err, "could not close key file")
+	}
+}
+
+func generateEncryptionKey() []byte {
+	return []byte(Generate(32, false))
 }
 
 // Print prints a tree of the password store
@@ -55,8 +72,7 @@ func Print(dir string, offset int) {
 
 // Find finds, decrypts, and prints a password to the console
 func Find(dir string) string {
-	root := GetRootDir()
-	fname := path.Join(root, dir)
+	fname := path.Join(Root, dir)
 	if !PswdExists(fname) {
 		FatalError(nil, "cannot find pswd for "+fname)
 	}
@@ -64,7 +80,7 @@ func Find(dir string) string {
 	if err != nil {
 		FatalError(err, "could not read pswd for "+fname)
 	}
-	k := getKey()
+	k := getEncryptionKey()
 	pswd, err := Decrypt(k, ct)
 	if err != nil {
 		FatalError(err, "could not decrypt pswd for "+fname)
@@ -75,10 +91,9 @@ func Find(dir string) string {
 // Add inserts a password into storage
 func Add(p, data string) {
 
-	root := GetRootDir()
 	dir, file := SplitDir(p)
 
-	newdir := path.Join(root, dir)
+	newdir := path.Join(Root, dir)
 	if !DirExists(newdir) {
 		err := os.MkdirAll(newdir, 0755)
 		if err != nil {
@@ -86,16 +101,16 @@ func Add(p, data string) {
 		}
 	}
 
-	if PswdExists(path.Join(root, p)) {
+	if PswdExists(path.Join(Root, p)) {
 		FatalError(nil, "that password already exists. Try `passman edit`.")
 	}
 
-	f, err := os.Create(path.Join(root, dir, file))
+	f, err := os.Create(path.Join(Root, dir, file))
 	if err != nil {
 		FatalError(err, "could not create password")
 	}
 
-	k := getKey()
+	k := getEncryptionKey()
 	ct, err := Encrypt(k, []byte(data))
 	if err != nil {
 		FatalError(err, "could not encrypt password for "+dir)
@@ -115,8 +130,7 @@ func Add(p, data string) {
 
 // Remove removes given password from storage
 func Remove(p string) {
-	root := GetRootDir()
-	dir := path.Join(root, p)
+	dir := path.Join(Root, p)
 	if DirExists(dir) {
 		err := os.RemoveAll(dir)
 		if err != nil {
@@ -127,13 +141,12 @@ func Remove(p string) {
 
 // Edit decrypts and opens password file in editor defined by $VISUAL
 func Edit(p string) {
-	root := GetRootDir()
-	f := path.Join(root, p)
+	f := path.Join(Root, p)
 	if !PswdExists(f) {
 		FatalError(nil, "could not find password for "+p)
 	}
 
-	k := getKey()
+	k := getEncryptionKey()
 
 	// Read encrypted password from file
 	ciphertext, err := ioutil.ReadFile(f)
@@ -185,17 +198,7 @@ func Edit(p string) {
 }
 
 // Dump writes unecrypted passwords to outfile.
-func Dump(dir, outfile string) {
-	if _, err := os.Stat(outfile); err == nil {
-		err = os.Remove(outfile)
-		if err != nil {
-			FatalError(err, "could not remove existing outfile")
-		}
-	}
-	dumpRec(dir, outfile)
-}
-
-func dumpRec(dir, outfile string) {
+func Dump(dir string, outfile *os.File) {
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		FatalError(err, "could not read files from password store")
@@ -207,30 +210,23 @@ func dumpRec(dir, outfile string) {
 		}
 		if f.IsDir() {
 			p := path.Join(dir, n)
-			dumpRec(p, outfile)
+			Dump(p, outfile)
 		} else {
 			p := path.Join(dir, n)
-			k := getKey()
+			k := getEncryptionKey()
 			c, err := ioutil.ReadFile(p)
 			if err != nil {
 				FatalError(err, "could not read pswd for "+p)
 			}
 			t, err := Decrypt(k, c)
+			w := strings.TrimPrefix(p, Root+"/") + " " + string(t) + "\n"
 			if err != nil {
-				FatalError(err, "could not decrypt pswd for "+dir)
+				FatalError(err, "could not decrypt pswd for "+w)
 			}
-			// TODO - dump should default to printing to stdout
-			f, err := os.OpenFile(outfile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+			_, err = outfile.WriteString(w)
 			if err != nil {
-				FatalError(err, "could not open dump file "+outfile)
+				FatalError(err, "could not write passwords to dump file")
 			}
-			root := GetRootDir()
-			w := strings.TrimPrefix(p, root+"/") + " " + string(t) + "\n"
-			_, err = f.WriteString(w)
-			if err != nil {
-				FatalError(err, "could not write to dump file")
-			}
-			f.Close()
 		}
 	}
 }
@@ -252,32 +248,41 @@ func Import(infile string) {
 	}
 }
 
-// Lock dumps the password store into an encrypted file and removes all passwords and .fpubkey
+// Lock dumps the password store into an encrypted file and removes all passwords and .key
 // CAUTION: if you forget the password you used to generate the encryption key, you will not
 // be able to unencrypt your passwords.
 func Lock() {
-	yes := Getln("CAUTION: if you forget the password you used to generate your encryption key,\nyou will not be able to unencrypt your passwords.\nDo you wish to continue? (y/N) ")
+	Log("CAUTION - if you forget the password you use to lock passman, you will not be able to unencrypt your passwords.")
+	yes := Getln("Do you wish to continue? (y/N) ")
 	if string(yes) == "y" || string(yes) == "Y" {
-		fmt.Println("Locking passman...")
-		k := getKey()
-		root := GetRootDir()
-		lockfile := path.Join(root, "passman.lock")
-		Dump(root, lockfile)
-		EncryptFile(k, lockfile)
-		RemoveContents(root, "passman.lock")
+		pswd := getUserPswd()
+		k := hashPswd(pswd)
+		lockfile := path.Join(Root, ".passman.lock")
+		f, err := os.OpenFile(lockfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
+		if err != nil {
+			FatalError(err, "could not open lockfile")
+		}
+		Dump(Root, f)
+		EncryptFile(k[:], lockfile)
+		Log("deleting password store...")
+		RemoveContents(Root, ".passman.lock")
+		Log("passman locked")
+		err = f.Close()
+		if err != nil {
+			FatalError(err, "could not close lockfile")
+		}
 	} else {
-		fmt.Println("Lock operation aborted.")
+		Log("lock operation aborted.")
 	}
 }
 
-// Unlock takes the passman.lock file, unencrypts it and imports all passwords into the password store
+// Unlock unencrypts the .passman.lock file and imports all passwords into the password store
 func Unlock() {
-	pswd := getUserKey()
-	writeUserKey(pswd)
-	root := GetRootDir()
-	lockfile := path.Join(root, "passman.lock")
-	k := getKey()
-	DecryptFile(k, lockfile)
-	Import(lockfile)
-	os.Remove(lockfile)
+	pswd := getUserPswd()
+	key := hashPswd(pswd)
+	DecryptFile(key[:], Lockfile)
+	newKey := generateEncryptionKey()
+	writeEncryptionKey(newKey)
+	Import(Lockfile)
+	os.Remove(Lockfile)
 }

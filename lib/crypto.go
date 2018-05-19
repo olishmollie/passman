@@ -35,7 +35,7 @@ func EncryptFile(key []byte, filename string) {
 	}
 	cipher, err := Encrypt(key, data)
 	if err != nil {
-		FatalError(err, "could not encrypt file data")
+		FatalError(nil, "could not encrypt file data")
 	}
 	err = ioutil.WriteFile(filename, cipher, 0666)
 	if err != nil {
@@ -71,7 +71,7 @@ func DecryptFile(key []byte, filename string) {
 	}
 	data, err := Decrypt(key, cipher)
 	if err != nil {
-		FatalError(err, "could not decrypt file data")
+		FatalError(nil, "could not decrypt file data. incorrect key")
 	}
 	err = ioutil.WriteFile(filename, data, 0666)
 	if err != nil {
