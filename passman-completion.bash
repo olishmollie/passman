@@ -87,8 +87,8 @@ _passman() {
     COMPREPLY=()
     root=$HOME/.passman
     commands="import dump touch rm edit generate"
-    options="-copy"
-    generate_options="-nosym -len"
+    options="--copy -c"
+    generate_options="--nosym -n --len -l"
 
     if [[ $COMP_CWORD -gt 1 ]]; then
         case "${COMP_WORDS[1]}" in
@@ -101,15 +101,18 @@ _passman() {
             import)
                 _passman_files
                 return 0;;
-            -copy)
-                _passman_entries
+            --copy|-c)
+                _passman_entries 1
                 COMPREPLY+=( $(compgen -W "generate ${generate_options}" -- ${cur}) )
+                return 0;;
+            generate)
+                COMPREPLY+=( $(compgen -W "${generate_options}" -- ${cur}) )
                 return 0;;
             edit)
                 _passman_entries 1
                 return 0;;
-            -nosym|-len*)
-                COMPREPLY=( $(compgen -W "${optons} generate" -- ${cur}) )
+            --nosym|-n)
+                COMPREPLY=( $(compgen -W "${optons} --len -l generate" -- ${cur}) )
 
         esac
     else
