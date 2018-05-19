@@ -1,5 +1,4 @@
 # passman
-### A UNIX password manager
 
 #### Installation
 ```
