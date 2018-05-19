@@ -16,7 +16,7 @@ Passman comes bundled with a bash completion script. To use it, source passman-c
 #### Usage
 ```
 usage: passman [opts...] [command] [args...]
-example: passman touch Category/Website/username pswd
+
 commands: dump edit generate import init rm touch
 	passman - prints a tree of pswds in store
 
@@ -29,16 +29,20 @@ dump <outfile> - prints unencrypted pswds to outfile
 edit <pswd_file> - edit pswd in editor set to $VISUAL
 
 generate [opts...] - generates a random pswd
-    opts:
-        -copy - copies unencrypted pswd to clipboard
-        -len=int - specifies length of generated pswd
-        -nosym - generate a password with no symbols
+	opts:
+		-copy - copies unencrypted pswd to clipboard
+		-len=int - specifies length of generated pswd
+		-nosym - generate a password with no symbols
 
 import <infile> - imports passwords from infile.
 
 init - create password store if it doesn't exist, and generate encryption key
 
+lock - encrypts and dumps all passwords into one file
+
 rm <pswd_file> - remove <pswd_file> from pswd store
 
 touch <pswd_file> - add <pswd_file> to pswd store
+
+unlock - undoes lock operation
 ```

@@ -146,7 +146,7 @@ func checkNumArgs(num int, args []string) {
 func printUsage() {
 	fmt.Print(
 		`usage: passman [opts...] [command] [args...]
-example: passman touch Category/Website/username pswd
+
 commands: dump edit generate import init rm touch
 	passman - prints a tree of pswds in store
 
@@ -154,7 +154,7 @@ passman [opts...] <pswd_file> - prints unencrypted pswd
     opts:
         -copy - copies unencrypted pswd to clipboard
 
-dump <outfile> - prints unencrypted pswds to outfile
+dump - prints unencrypted pswds to stdout
 
 edit <pswd_file> - edit pswd in editor set to $VISUAL
 
@@ -164,7 +164,7 @@ generate [opts...] - generates a random pswd
 		-len=int - specifies length of generated pswd
 		-nosym - generate a password with no symbols
 
-import <infile> - imports passwords from infile. infile must be newline delimited pswds
+import <infile> - imports passwords from infile.
 
 init - create password store if it doesn't exist, and generate encryption key
 
