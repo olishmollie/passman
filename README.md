@@ -7,7 +7,7 @@ $ go install github.com/olishmollie/passman
 ```
 
 #### Getting started
-Passman stores encrypted passwords in a directory in your home folder. To get started, run `passman init`, which will create the password store at `~/.passman` and ask you for a master passphrase, which will be used to generate an encryption key. This key is stored in `~/.passman/.key`.
+Passman stores encrypted passwords in a directory in your home folder. To get started, run `passman init`, which will create the password store at `~/.passman` and generate an encryption key. This key is stored in `~/.passman/.key`.
 
 #### Tab Completion
 Passman comes bundled with a bash completion script. To use it, source passman-completion.bash from your bashrc or bash_profile.
