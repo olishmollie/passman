@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/user"
 	"path"
@@ -14,8 +13,16 @@ import (
 	"strings"
 )
 
-// GetRootDir returns passman's root directory
-func GetRootDir() string {
+// Root is equivalent to ~/.passman
+var Root = getRootDir()
+
+// Lockfile is the path to the lockfile
+var Lockfile = path.Join(Root, ".passman.lock")
+
+// Keyfile is the path to the keyfile
+var Keyfile = path.Join(Root, ".key")
+
+func getRootDir() string {
 	h := getHomeDir()
 	return path.Join(h, ".passman")
 }
@@ -82,12 +89,19 @@ func SplitDir(p string) (dir, file string) {
 	return
 }
 
-// FatalError logs an error message to stderr and exits
+// FatalError writes an error to stderr and exits
 func FatalError(err error, msg string) {
 	if err == nil {
-		log.Fatal("fatal: " + msg + "\n")
+		os.Stderr.WriteString("fatal: " + msg + "\n")
+		os.Exit(1)
 	}
-	log.Fatal("fatal: "+msg+"\n", err)
+	os.Stderr.WriteString("fatal: " + msg + "\n" + err.Error() + "\n")
+	os.Exit(1)
+}
+
+// Log writes a message stdout
+func Log(msg string) {
+	fmt.Printf("passman: %s\n", msg)
 }
 
 // RemoveContents removes a directory's contents, skipping any filenames passed as secondary arguments.
@@ -119,7 +133,7 @@ func RemoveContents(dir string, except ...string) {
 	}
 }
 
-func getUserKey() []byte {
+func getUserPswd() []byte {
 	var pswd []byte
 	// TODO - limit number of times passphrase can be entered
 	for {
@@ -131,37 +145,15 @@ func getUserKey() []byte {
 			break
 		}
 	}
-	return pswd
+	return bytes.TrimRight(pswd, "\n")
 }
 
-func writeUserKey(pswd []byte) {
-	root := GetRootDir()
-	pub := path.Join(root, ".fpubkey")
-	f, err := os.Create(pub)
-	if err != nil {
-		FatalError(err, "could not create key file")
-	}
-
-	k := genKey(pswd)
-	_, err = f.Write(k[:])
-	if err != nil {
-		FatalError(err, "could not write key to key file")
-	}
-
-	err = f.Close()
-	if err != nil {
-		FatalError(err, "could not close key file")
-	}
-}
-
-func genKey(p []byte) [32]byte {
+func hashPswd(p []byte) [32]byte {
 	return sha256.Sum256(p)
 }
 
-func getKey() []byte {
-	root := GetRootDir()
-	kp := path.Join(root, ".fpubkey")
-	d, err := ioutil.ReadFile(kp)
+func getEncryptionKey() []byte {
+	d, err := ioutil.ReadFile(Keyfile)
 	if err != nil {
 		FatalError(err, "could not read encryption key from password store")
 	}

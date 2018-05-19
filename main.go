@@ -11,8 +11,6 @@ import (
 	"github.com/olishmollie/passman/lib"
 )
 
-var root = lib.GetRootDir()
-
 func main() {
 
 	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
@@ -31,7 +29,7 @@ func main() {
 	if len(args) == 0 {
 		checkLock()
 		checkStore()
-		lib.Print(root, 0)
+		lib.Print(lib.Root, 0)
 		os.Exit(0)
 	}
 
@@ -72,8 +70,8 @@ func main() {
 		checkLock()
 		checkStore()
 		checkFPubKey()
-		checkNumArgs(1, args)
-		lib.Dump(root, args[0])
+		checkNumArgs(0, args)
+		lib.Dump(lib.Root, os.Stdout)
 	case "import":
 		checkLock()
 		checkStore()
@@ -108,13 +106,13 @@ func main() {
 }
 
 func checkStore() {
-	if !lib.DirExists(root) {
+	if !lib.DirExists(lib.Root) {
 		lib.FatalError(nil, "no pswd store. try `passman init`")
 	}
 }
 
 func checkFPubKey() {
-	fpubkey := path.Join(root, ".fpubkey")
+	fpubkey := path.Join(lib.Root, ".key")
 	if _, err := os.Stat(fpubkey); err != nil {
 		if os.IsNotExist(err) {
 			lib.FatalError(nil, "no encryption key. try `passman init`")
@@ -132,8 +130,7 @@ func checkLock() {
 }
 
 func locked() bool {
-	lockfile := path.Join(root, "passman.lock")
-	if _, err := os.Stat(lockfile); err == nil {
+	if _, err := os.Stat(lib.Lockfile); err == nil {
 		return true
 	}
 	return false
