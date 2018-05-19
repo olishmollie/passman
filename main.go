@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"strings"
 
 	flag "github.com/ogier/pflag"
 
@@ -21,14 +20,8 @@ func main() {
 	noSymPtr := flag.BoolP("nosym", "n", false, "generate a password with no symbols")
 	lenPtr := flag.IntP("len", "l", 0, "length of generated password, defaults to random int between 8 and 20")
 	flag.Parse()
-	var args []string
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "-") {
-			continue
-		}
-		args = append(args, arg)
-	}
-	args = args[1:]
+
+	args := flag.Args()
 
 	if len(args) == 0 {
 		checkLock()
