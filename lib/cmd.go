@@ -20,6 +20,11 @@ func Init() {
 		}
 		Log("created password store at ~/.passman")
 	}
+
+	if _, err := os.Stat(Keyfile); err == nil {
+		FatalError(nil, "encryption key detected. remove `~/.passman/.key` before reinitializing")
+	}
+
 	key := generateEncryptionKey()
 	Log("writing encryption key to .passman/.key...")
 	writeEncryptionKey(key)
@@ -74,16 +79,16 @@ func Print(dir string, offset int) {
 func Find(dir string) string {
 	fname := path.Join(Root, dir)
 	if !PswdExists(fname) {
-		FatalError(nil, "cannot find pswd for "+fname)
+		FatalError(nil, "cannot find pswd for "+dir)
 	}
 	ct, err := ioutil.ReadFile(fname)
 	if err != nil {
-		FatalError(err, "could not read pswd for "+fname)
+		FatalError(err, "could not read pswd for "+dir)
 	}
 	k := getEncryptionKey()
 	pswd, err := Decrypt(k, ct)
 	if err != nil {
-		FatalError(err, "could not decrypt pswd for "+fname)
+		FatalError(err, "bad encryption key for "+dir)
 	}
 	return string(pswd)
 }
@@ -99,10 +104,6 @@ func Add(p, data string) {
 		if err != nil {
 			FatalError(err, "could not create password store")
 		}
-	}
-
-	if PswdExists(path.Join(Root, p)) {
-		FatalError(nil, "that password already exists. Try `passman edit`.")
 	}
 
 	f, err := os.Create(path.Join(Root, dir, file))
