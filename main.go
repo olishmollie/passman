@@ -1,11 +1,13 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
+
+	flag "github.com/ogier/pflag"
 
 	"github.com/atotto/clipboard"
 	"github.com/olishmollie/passman/lib"
@@ -13,9 +15,11 @@ import (
 
 func main() {
 
-	copyPtr := flag.Bool("copy", false, "copy password to clipboard")
-	noSymPtr := flag.Bool("nosym", false, "generate a password with no symbols")
-	lenPtr := flag.Int("len", 0, "length of generated password, defaults to random int between 8 and 20")
+	flag.Usage = printUsage
+
+	copyPtr := flag.BoolP("copy", "c", false, "copy password to clipboard")
+	noSymPtr := flag.BoolP("nosym", "n", false, "generate a password with no symbols")
+	lenPtr := flag.IntP("len", "l", 0, "length of generated password, defaults to random int between 8 and 20")
 	flag.Parse()
 	var args []string
 	for _, arg := range os.Args {
@@ -144,36 +148,9 @@ func checkNumArgs(num int, args []string) {
 }
 
 func printUsage() {
-	fmt.Print(
-		`usage: passman [opts...] [command] [args...]
-
-commands: dump edit generate import init rm touch
-	passman - prints a tree of pswds in store
-
-passman [opts...] <pswd_file> - prints unencrypted pswd
-    opts:
-        -copy - copies unencrypted pswd to clipboard
-
-dump - prints unencrypted pswds to stdout
-
-edit <pswd_file> - edit pswd in editor set to $VISUAL
-
-generate [opts...] - generates a random pswd
-	opts:
-		-copy - copies unencrypted pswd to clipboard
-		-len=int - specifies length of generated pswd
-		-nosym - generate a password with no symbols
-
-import <infile> - imports passwords from infile.
-
-init - create password store if it doesn't exist, and generate encryption key
-
-lock - encrypts and dumps all passwords into one file
-
-rm <pswd_file> - remove <pswd_file> from pswd store
-
-touch <pswd_file> - add <pswd_file> to pswd store
-
-unlock - undoes lock operation
-`)
+	usage, err := ioutil.ReadFile("usage.txt")
+	if err != nil {
+		lib.FatalError(err, "could not read usage.txt")
+	}
+	fmt.Println(string(usage))
 }
