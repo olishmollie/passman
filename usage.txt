@@ -1,4 +1,4 @@
-usage: passman [opts...] [command] [args...]
+usage: passman [command] [args...] [opts...]
 
 commands: dump edit generate import init rm touch
 

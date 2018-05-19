@@ -15,7 +15,7 @@ Passman comes bundled with a bash completion script. To use it, source passman-c
 
 #### Usage
 ```
-usage: passman [opts...] [command] [args...]
+usage: passman [command] [args...] [opts...]
 
 commands: dump edit generate import init rm touch
 
