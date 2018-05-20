@@ -1,14 +1,12 @@
-package main
+package passman
 
 import (
 	"fmt"
 	"os"
 	"path"
 
-	flag "github.com/ogier/pflag"
-
 	"github.com/atotto/clipboard"
-	"github.com/olishmollie/passman/lib"
+	flag "github.com/ogier/pflag"
 )
 
 func main() {
@@ -25,7 +23,7 @@ func main() {
 	if len(args) == 0 {
 		checkLock()
 		checkStore()
-		lib.Print(lib.Root, 0)
+		Print(Root, 0)
 		os.Exit(0)
 	}
 
@@ -35,28 +33,28 @@ func main() {
 	switch cmd {
 	case "init":
 		checkLock()
-		lib.Init()
+		Init()
 	case "add":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(2, args)
-		lib.Add(args[0], args[1])
+		Add(args[0], args[1])
 	case "rm":
 		checkLock()
 		checkStore()
 		checkNumArgs(1, args)
-		lib.Remove(args[0])
+		Remove(args[0])
 	case "edit":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(1, args)
-		lib.Edit(args[0])
+		Edit(args[0])
 	case "generate":
 		checkNumArgs(0, args)
 		var s string
-		s = lib.Generate(*lenPtr, *noSymPtr)
+		s = Generate(*lenPtr, *noSymPtr)
 		if *copyPtr {
 			clipboard.WriteAll(s)
 		} else {
@@ -67,22 +65,22 @@ func main() {
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(0, args)
-		lib.Dump(lib.Root, os.Stdout)
+		Dump(Root, os.Stdout)
 	case "import":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(1, args)
-		lib.Import(args[0])
+		Import(args[0])
 	case "lock":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(0, args)
-		lib.Lock()
+		Lock()
 	case "unlock":
 		if locked() {
-			lib.Unlock()
+			Unlock()
 		} else {
 			fmt.Println("passman is not locked")
 		}
@@ -91,7 +89,7 @@ func main() {
 		checkFPubKey()
 		checkStore()
 		checkNumArgs(0, args)
-		p := lib.Find(cmd)
+		p := Find(cmd)
 		if *copyPtr {
 			clipboard.WriteAll(p)
 		} else {
@@ -102,18 +100,18 @@ func main() {
 }
 
 func checkStore() {
-	if !lib.DirExists(lib.Root) {
-		lib.FatalError(nil, "no pswd store. try `passman init`")
+	if !DirExists(Root) {
+		FatalError(nil, "no pswd store. try `passman init`")
 	}
 }
 
 func checkFPubKey() {
-	fpubkey := path.Join(lib.Root, ".key")
+	fpubkey := path.Join(Root, ".key")
 	if _, err := os.Stat(fpubkey); err != nil {
 		if os.IsNotExist(err) {
-			lib.FatalError(nil, "no encryption key. try `passman init`")
+			FatalError(nil, "no encryption key. try `passman init`")
 		} else {
-			lib.FatalError(err, "could not check status of pswd store")
+			FatalError(err, "could not check status of pswd store")
 		}
 	}
 }
@@ -126,7 +124,7 @@ func checkLock() {
 }
 
 func locked() bool {
-	if _, err := os.Stat(lib.Lockfile); err == nil {
+	if _, err := os.Stat(Lockfile); err == nil {
 		return true
 	}
 	return false
