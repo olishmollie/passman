@@ -3,7 +3,6 @@
 #### Installation
 ```
 $ go get github.com/olishmollie/passman
-$ go install github.com/olishmollie/passman
 ```
 
 #### Getting started
