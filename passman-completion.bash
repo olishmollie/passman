@@ -86,13 +86,13 @@ _passman() {
     local root options commands 
     COMPREPLY=()
     root=$HOME/.passman
-    commands="import dump touch rm edit generate"
+    commands="import dump add rm edit generate"
     options="--copy -c"
     generate_options="--nosym -n --len -l"
 
     if [[ $COMP_CWORD -gt 1 ]]; then
         case "${COMP_WORDS[1]}" in
-            touch)
+            add)
                 _passman_folders
                 return 0;;
             rm)

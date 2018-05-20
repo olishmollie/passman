@@ -36,7 +36,7 @@ func main() {
 	case "init":
 		checkLock()
 		lib.Init()
-	case "touch":
+	case "add":
 		checkLock()
 		checkStore()
 		checkFPubKey()
@@ -153,6 +153,8 @@ passman [opts...] <pswd_file> - prints unencrypted pswd
     -c, --copy
         copy password to clipboard
 
+add <pswd_file> - add <pswd_file> to pswd store
+
 dump - prints unencrypted pswds to stdout
 
 edit <pswd_file> - edit pswd in editor set to $VISUAL
@@ -176,8 +178,6 @@ init - create pswd store if it doesn't exist, generate encryption key
 lock - encrypts and dumps all passwords into one file
 
 rm <pswd_file> - remove <pswd_file> from pswd store
-
-touch <pswd_file> - add <pswd_file> to pswd store
 
 unlock - undoes lock operation
 `

@@ -16,13 +16,15 @@ Passman comes bundled with a bash completion script. To use it, source passman-c
 ```
 usage: passman [command] [args...] [opts...]
 
-commands: dump edit generate import init rm touch
+commands: add dump edit generate import init rm
 
 passman - prints a tree of pswds in store
 
 passman [opts...] <pswd_file> - prints unencrypted pswd
     -c, --copy
         copy password to clipboard
+
+add <pswd_file> - add <pswd_file> to pswd store
 
 dump - prints unencrypted pswds to stdout
 
@@ -47,8 +49,6 @@ init - create pswd store if it doesn't exist, generate encryption key
 lock - encrypts and dumps all passwords into one file
 
 rm <pswd_file> - remove <pswd_file> from pswd store
-
-touch <pswd_file> - add <pswd_file> to pswd store
 
 unlock - undoes lock operation
 ```
