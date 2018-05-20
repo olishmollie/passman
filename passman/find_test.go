@@ -14,7 +14,7 @@ func TestFind(t *testing.T) {
 	prefix2, pswd2 := "category/website/username2", "secret2"
 	prefix3, pswd3 := "username3", "secret3"
 	prefix4, pswd4 := "website/username4", "secret4"
-	setupFind(root, keyfile, t)
+	setupFind(root, keyfile)
 	if res := Find(root, keyfile, prefix1); res != pswd1 {
 		t.Errorf("Expected %s, got %s", pswd1, res)
 	}
@@ -30,7 +30,6 @@ func TestFind(t *testing.T) {
 	removeContentsOf(root, ".key")
 }
 
-func setupFind(root, keyfile string, t *testing.T) {
-	infile := "mock_pswds.txt"
+func setupFind(root, keyfile string) {
 	Import(root, keyfile, infile)
 }
