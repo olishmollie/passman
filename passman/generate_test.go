@@ -11,12 +11,16 @@ func TestGenerate(t *testing.T) {
 }
 
 func handlesLength(t *testing.T) {
-	lengths := []int{10, 0, 3, 4, 5}
+	lengths := []int{10, 8, 3, 4, 5}
 	for _, l := range lengths {
 		g := Generate(l, false)
 		if len(g) != l {
 			t.Errorf("Expected length %d, got %d", l, len(g))
 		}
+	}
+	g := Generate(0, false)
+	if len(g) < 8 {
+		t.Errorf("Expected passed length of 0 to generate at least length 8, got %d", len(g))
 	}
 }
 
