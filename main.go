@@ -21,10 +21,12 @@ func main() {
 
 	args := pflag.Args()
 
+	root := passman.GetRootDir()
+
 	if len(args) == 0 {
 		checkLock()
 		checkStore()
-		passman.Print(passman.Root, 0)
+		passman.Print(root, 0)
 		os.Exit(0)
 	}
 
@@ -40,7 +42,7 @@ func main() {
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(2, args)
-		passman.Add(args[0], args[1])
+		passman.Add(root, args[0], args[1])
 	case "rm":
 		checkLock()
 		checkStore()
