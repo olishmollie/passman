@@ -1,0 +1,4 @@
+category/website/username1 secret1
+category/website/username2 secret2
+username3 secret3
+website/username4 secret4
