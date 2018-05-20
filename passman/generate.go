@@ -19,7 +19,7 @@ const charsetNoSym = "abcdefghijklmnopqrstuvwxyz" +
 func Generate(l int, noSym bool) string {
 	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	if l == 0 {
-		l = seededRand.Intn(13) + 7
+		l = seededRand.Intn(13) + 8
 	}
 	b := make([]byte, l)
 	for i := range b {
