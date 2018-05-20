@@ -5,19 +5,17 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"os"
-	"path"
 )
 
 // Lock dumps the password store into an encrypted file and removes all passwords and .key
 // CAUTION: if you forget the password you used to generate the encryption key, you will not
 // be able to unencrypt your passwords.
-func Lock(root, keyfile string) {
+func Lock(root, keyfile, lockfile string) {
 	Log("CAUTION - if you forget the password you use to lock passman, you will not be able to unencrypt your passwords.")
 	yes := getln("Do you wish to continue? (y/N) ")
 	if string(yes) == "y" || string(yes) == "Y" {
 		pswd := getUserPswd()
 		k := hashPswd(pswd)
-		lockfile := path.Join(root, ".passman.lock")
 		f, err := os.OpenFile(lockfile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 		if err != nil {
 			FatalError(err, "could not open lockfile")
@@ -37,14 +35,14 @@ func Lock(root, keyfile string) {
 }
 
 // Unlock unencrypts the .passman.lock file and imports all passwords into the password store
-func Unlock(root, keyfile string) {
+func Unlock(root, keyfile, lockfile string) {
 	pswd := getUserPswd()
 	key := hashPswd(pswd)
-	decryptFile(key[:], Lockfile)
+	decryptFile(key[:], lockfile)
 	newKey := generateEncryptionKey()
 	writeEncryptionKey(keyfile, newKey)
-	Import(root, keyfile, Lockfile)
-	os.Remove(Lockfile)
+	Import(root, keyfile, lockfile)
+	os.Remove(lockfile)
 }
 
 func getUserPswd() []byte {

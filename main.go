@@ -22,10 +22,12 @@ func main() {
 	args := pflag.Args()
 
 	root := passman.GetRootDir()
+	keyfile := path.Join(root, ".key")
+	lockfile := path.Join(root, ".passman.lock")
 
 	if len(args) == 0 {
-		checkLock()
-		checkStore()
+		checkLock(lockfile)
+		checkStore(root)
 		passman.Print(root, 0)
 		os.Exit(0)
 	}
@@ -35,25 +37,25 @@ func main() {
 
 	switch cmd {
 	case "init":
-		checkLock()
-		passman.Init()
+		checkLock(lockfile)
+		passman.Init(root, keyfile)
 	case "add":
-		checkLock()
-		checkStore()
-		checkFPubKey()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(2, args)
-		passman.Add(root, args[0], args[1])
+		passman.Add(root, keyfile, args[0], args[1])
 	case "rm":
-		checkLock()
-		checkStore()
+		checkLock(lockfile)
+		checkStore(root)
 		checkNumArgs(1, args)
-		passman.Remove(args[0])
+		passman.Remove(root, args[0])
 	case "edit":
-		checkLock()
-		checkStore()
-		checkFPubKey()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(1, args)
-		passman.Edit(args[0])
+		passman.Edit(root, keyfile, args[0])
 	case "generate":
 		checkNumArgs(0, args)
 		var s string
@@ -64,35 +66,35 @@ func main() {
 			fmt.Println(s)
 		}
 	case "dump":
-		checkLock()
-		checkStore()
-		checkFPubKey()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(0, args)
-		passman.Dump(passman.Root, os.Stdout)
+		passman.Dump(root, root, keyfile, os.Stdout)
 	case "import":
-		checkLock()
-		checkStore()
-		checkFPubKey()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(1, args)
-		passman.Import(args[0])
+		passman.Import(root, keyfile, args[0])
 	case "lock":
-		checkLock()
-		checkStore()
-		checkFPubKey()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(0, args)
-		passman.Lock()
+		passman.Lock(root, keyfile, lockfile)
 	case "unlock":
-		if locked() {
-			passman.Unlock()
+		if locked(lockfile) {
+			passman.Unlock(root, keyfile, lockfile)
 		} else {
 			fmt.Println("passman is not locked")
 		}
 	default:
-		checkLock()
-		checkFPubKey()
-		checkStore()
+		checkLock(lockfile)
+		checkStore(root)
+		checkFPubKey(keyfile)
 		checkNumArgs(0, args)
-		p := passman.Find(cmd)
+		p := passman.Find(root, keyfile, cmd)
 		if *copyPtr {
 			clipboard.WriteAll(p)
 		} else {
@@ -102,15 +104,14 @@ func main() {
 
 }
 
-func checkStore() {
-	if !passman.DirExists(passman.Root) {
+func checkStore(root string) {
+	if !passman.DirExists(root) {
 		passman.FatalError(nil, "no pswd store. try `passman init`")
 	}
 }
 
-func checkFPubKey() {
-	fpubkey := path.Join(passman.Root, ".key")
-	if _, err := os.Stat(fpubkey); err != nil {
+func checkFPubKey(keyfile string) {
+	if _, err := os.Stat(keyfile); err != nil {
 		if os.IsNotExist(err) {
 			passman.FatalError(nil, "no encryption key. try `passman init`")
 		} else {
@@ -119,15 +120,15 @@ func checkFPubKey() {
 	}
 }
 
-func checkLock() {
-	if locked() {
+func checkLock(lockfile string) {
+	if locked(lockfile) {
 		fmt.Println("passman is locked. try `passman unlock`")
 		os.Exit(0)
 	}
 }
 
-func locked() bool {
-	if _, err := os.Stat(passman.Lockfile); err == nil {
+func locked(lockfile string) bool {
+	if _, err := os.Stat(lockfile); err == nil {
 		return true
 	}
 	return false

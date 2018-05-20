@@ -9,9 +9,6 @@ import (
 	"strings"
 )
 
-// Lockfile is the path to the lockfile
-var Lockfile = path.Join(GetRootDir(), ".passman.lock")
-
 // DirExists returns whether given directory exists.
 func DirExists(d string) bool {
 	_, err := os.Stat(d)

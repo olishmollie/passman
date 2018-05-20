@@ -8,8 +8,8 @@ import (
 )
 
 // Dump writes unecrypted passwords to outfile.
-func Dump(root, keyfile, dir string, outfile *os.File) {
-	files, err := ioutil.ReadDir(dir)
+func Dump(start, root, keyfile string, outfile *os.File) {
+	files, err := ioutil.ReadDir(start)
 	if err != nil {
 		FatalError(err, "could not read files from password store")
 	}
@@ -19,10 +19,10 @@ func Dump(root, keyfile, dir string, outfile *os.File) {
 			continue
 		}
 		if f.IsDir() {
-			p := path.Join(dir, n)
-			Dump(root, keyfile, p, outfile)
+			p := path.Join(start, n)
+			Dump(p, root, keyfile, outfile)
 		} else {
-			p := path.Join(dir, n)
+			p := path.Join(start, n)
 			c, err := ioutil.ReadFile(p)
 			if err != nil {
 				FatalError(err, "could not read pswd for "+p)
