@@ -9,14 +9,8 @@ import (
 	"strings"
 )
 
-// Root is equivalent to ~/.passman
-var Root = getRootDir()
-
 // Lockfile is the path to the lockfile
-var Lockfile = path.Join(Root, ".passman.lock")
-
-// Keyfile is the path to the keyfile
-var Keyfile = path.Join(Root, ".key")
+var Lockfile = path.Join(GetRootDir(), ".passman.lock")
 
 // DirExists returns whether given directory exists.
 func DirExists(d string) bool {
@@ -29,7 +23,8 @@ func DirExists(d string) bool {
 	return true
 }
 
-func getRootDir() string {
+// GetRootDir returns ~/.passman
+func GetRootDir() string {
 	h := getHomeDir()
 	return path.Join(h, ".passman")
 }
@@ -71,7 +66,7 @@ func splitDir(p string) (dir, file string) {
 	return
 }
 
-func removeContents(dir string, except ...string) {
+func removeContentsOf(dir string, except ...string) {
 	d, err := os.Open(dir)
 	if err != nil {
 		FatalError(err, "could not open pswd store")

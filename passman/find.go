@@ -6,8 +6,8 @@ import (
 )
 
 // Find finds, decrypts, and prints a password to the console
-func Find(dir string) string {
-	fname := path.Join(Root, dir)
+func Find(root, keyfile, dir string) string {
+	fname := path.Join(root, dir)
 	if !pswdExists(fname) {
 		FatalError(nil, "cannot find pswd for "+dir)
 	}
@@ -15,7 +15,7 @@ func Find(dir string) string {
 	if err != nil {
 		FatalError(err, "could not read pswd for "+dir)
 	}
-	pswd, err := decrypt(getEncryptionKey(), ct)
+	pswd, err := decrypt(getEncryptionKey(keyfile), ct)
 	if err != nil {
 		FatalError(err, "bad encryption key for "+dir)
 	}

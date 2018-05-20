@@ -6,11 +6,11 @@ import (
 )
 
 // Add inserts a password into storage
-func Add(p, data string) {
+func Add(root, keyfile, prefix, data string) {
 
-	dir, file := splitDir(p)
+	dir, file := splitDir(prefix)
 
-	newdir := path.Join(Root, dir)
+	newdir := path.Join(root, dir)
 	if !DirExists(newdir) {
 		err := os.MkdirAll(newdir, 0755)
 		if err != nil {
@@ -18,12 +18,12 @@ func Add(p, data string) {
 		}
 	}
 
-	f, err := os.Create(path.Join(Root, dir, file))
+	f, err := os.Create(path.Join(root, dir, file))
 	if err != nil {
 		FatalError(err, "could not create password")
 	}
 
-	ct, err := encrypt(getEncryptionKey(), []byte(data))
+	ct, err := encrypt(getEncryptionKey(keyfile), []byte(data))
 	if err != nil {
 		FatalError(err, "could not encrypt password for "+dir)
 	}

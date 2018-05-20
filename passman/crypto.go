@@ -10,8 +10,8 @@ import (
 	"io/ioutil"
 )
 
-func getEncryptionKey() []byte {
-	key, err := ioutil.ReadFile(Keyfile)
+func getEncryptionKey(keyfile string) []byte {
+	key, err := ioutil.ReadFile(keyfile)
 	if err != nil {
 		FatalError(err, "could not read encryption key from password store")
 	}

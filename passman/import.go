@@ -10,7 +10,7 @@ import (
 // File must be newline delimited directory and pswds (like what Dump outputs)
 // e.g. Category/Website/username pswd
 //      Category/NextWebsite/username pswd
-func Import(infile string) {
+func Import(root, keyfile, infile string) {
 	f, err := os.Open(infile)
 	if err != nil {
 		FatalError(err, "could not open import file")
@@ -19,6 +19,6 @@ func Import(infile string) {
 	for scanner.Scan() {
 		t := scanner.Text()
 		d := strings.Split(t, " ")
-		Add(d[0], d[1])
+		Add(root, keyfile, d[0], d[1])
 	}
 }

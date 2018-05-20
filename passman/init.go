@@ -3,27 +3,27 @@ package passman
 import "os"
 
 // Init initializes passman by creating a storage directory and generating a cipher key
-func Init() {
-	if !DirExists(Root) {
-		err := os.Mkdir(Root, 0755)
+func Init(root, keyfile string) {
+	if !DirExists(root) {
+		err := os.Mkdir(root, 0755)
 		if err != nil {
 			FatalError(err, "could not create pswd store")
 		}
 		Log("created password store at ~/.passman")
 	}
 
-	if _, err := os.Stat(Keyfile); err == nil {
+	if _, err := os.Stat(keyfile); err == nil {
 		FatalError(nil, "encryption key detected. remove `~/.passman/.key` before reinitializing")
 	}
 
 	key := generateEncryptionKey()
 	Log("writing encryption key to .passman/.key...")
-	writeEncryptionKey(key)
+	writeEncryptionKey(keyfile, key)
 	Log("passman initialized successfully")
 }
 
-func writeEncryptionKey(key []byte) {
-	f, err := os.Create(Keyfile)
+func writeEncryptionKey(keyfile string, key []byte) {
+	f, err := os.Create(keyfile)
 	if err != nil {
 		FatalError(err, "could not create key file")
 	}
