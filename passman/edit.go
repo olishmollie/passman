@@ -11,11 +11,9 @@ import (
 // Edit decrypts and opens password file in editor defined by $VISUAL
 func Edit(p string) {
 	f := path.Join(Root, p)
-	if !PswdExists(f) {
+	if !pswdExists(f) {
 		FatalError(nil, "could not find password for "+p)
 	}
-
-	k := getEncryptionKey()
 
 	// Read encrypted password from file
 	ciphertext, err := ioutil.ReadFile(f)
@@ -24,7 +22,7 @@ func Edit(p string) {
 	}
 
 	// Decrypt password
-	plaintext, err := Decrypt(k, ciphertext)
+	plaintext, err := decrypt(getEncryptionKey(), ciphertext)
 	if err != nil {
 		FatalError(err, "could not decode pswd for "+p)
 	}
@@ -54,7 +52,7 @@ func Edit(p string) {
 	plaintext = bytes.TrimRight(plaintext, "\n")
 
 	// Encrypt edited password
-	ciphertext, err = Encrypt(k, plaintext)
+	ciphertext, err = encrypt(getEncryptionKey(), plaintext)
 	if err != nil {
 		FatalError(err, "could not encrypt pswd for "+p+" after editing")
 	}

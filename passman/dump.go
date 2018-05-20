@@ -23,12 +23,11 @@ func Dump(dir string, outfile *os.File) {
 			Dump(p, outfile)
 		} else {
 			p := path.Join(dir, n)
-			k := getEncryptionKey()
 			c, err := ioutil.ReadFile(p)
 			if err != nil {
 				FatalError(err, "could not read pswd for "+p)
 			}
-			t, err := Decrypt(k, c)
+			t, err := decrypt(getEncryptionKey(), c)
 			w := strings.TrimPrefix(p, Root+"/") + " " + string(t) + "\n"
 			if err != nil {
 				FatalError(err, "could not decrypt pswd for "+w)

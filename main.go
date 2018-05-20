@@ -1,4 +1,4 @@
-package passman
+package main
 
 import (
 	"fmt"
@@ -6,24 +6,25 @@ import (
 	"path"
 
 	"github.com/atotto/clipboard"
-	flag "github.com/ogier/pflag"
+	"github.com/ogier/pflag"
+	"github.com/olishmollie/passman/passman"
 )
 
 func main() {
 
-	flag.Usage = printUsage
+	pflag.Usage = printUsage
 
-	copyPtr := flag.BoolP("copy", "c", false, "copy password to clipboard")
-	noSymPtr := flag.BoolP("nosym", "n", false, "generate a password with no symbols")
-	lenPtr := flag.IntP("len", "l", 0, "length of generated password, defaults to random int between 8 and 20")
-	flag.Parse()
+	copyPtr := pflag.BoolP("copy", "c", false, "copy password to clipboard")
+	noSymPtr := pflag.BoolP("nosym", "n", false, "generate a password with no symbols")
+	lenPtr := pflag.IntP("len", "l", 0, "length of generated password, defaults to random int between 8 and 20")
+	pflag.Parse()
 
-	args := flag.Args()
+	args := pflag.Args()
 
 	if len(args) == 0 {
 		checkLock()
 		checkStore()
-		Print(Root, 0)
+		passman.Print(passman.Root, 0)
 		os.Exit(0)
 	}
 
@@ -33,28 +34,28 @@ func main() {
 	switch cmd {
 	case "init":
 		checkLock()
-		Init()
+		passman.Init()
 	case "add":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(2, args)
-		Add(args[0], args[1])
+		passman.Add(args[0], args[1])
 	case "rm":
 		checkLock()
 		checkStore()
 		checkNumArgs(1, args)
-		Remove(args[0])
+		passman.Remove(args[0])
 	case "edit":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(1, args)
-		Edit(args[0])
+		passman.Edit(args[0])
 	case "generate":
 		checkNumArgs(0, args)
 		var s string
-		s = Generate(*lenPtr, *noSymPtr)
+		s = passman.Generate(*lenPtr, *noSymPtr)
 		if *copyPtr {
 			clipboard.WriteAll(s)
 		} else {
@@ -65,22 +66,22 @@ func main() {
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(0, args)
-		Dump(Root, os.Stdout)
+		passman.Dump(passman.Root, os.Stdout)
 	case "import":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(1, args)
-		Import(args[0])
+		passman.Import(args[0])
 	case "lock":
 		checkLock()
 		checkStore()
 		checkFPubKey()
 		checkNumArgs(0, args)
-		Lock()
+		passman.Lock()
 	case "unlock":
 		if locked() {
-			Unlock()
+			passman.Unlock()
 		} else {
 			fmt.Println("passman is not locked")
 		}
@@ -89,7 +90,7 @@ func main() {
 		checkFPubKey()
 		checkStore()
 		checkNumArgs(0, args)
-		p := Find(cmd)
+		p := passman.Find(cmd)
 		if *copyPtr {
 			clipboard.WriteAll(p)
 		} else {
@@ -100,18 +101,18 @@ func main() {
 }
 
 func checkStore() {
-	if !DirExists(Root) {
-		FatalError(nil, "no pswd store. try `passman init`")
+	if !passman.DirExists(passman.Root) {
+		passman.FatalError(nil, "no pswd store. try `passman init`")
 	}
 }
 
 func checkFPubKey() {
-	fpubkey := path.Join(Root, ".key")
+	fpubkey := path.Join(passman.Root, ".key")
 	if _, err := os.Stat(fpubkey); err != nil {
 		if os.IsNotExist(err) {
-			FatalError(nil, "no encryption key. try `passman init`")
+			passman.FatalError(nil, "no encryption key. try `passman init`")
 		} else {
-			FatalError(err, "could not check status of pswd store")
+			passman.FatalError(err, "could not check status of pswd store")
 		}
 	}
 }
@@ -124,7 +125,7 @@ func checkLock() {
 }
 
 func locked() bool {
-	if _, err := os.Stat(Lockfile); err == nil {
+	if _, err := os.Stat(passman.Lockfile); err == nil {
 		return true
 	}
 	return false

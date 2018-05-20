@@ -10,8 +10,15 @@ import (
 	"io/ioutil"
 )
 
-// Encrypt takes a key and text, and returns the encrypted text
-func Encrypt(key, text []byte) ([]byte, error) {
+func getEncryptionKey() []byte {
+	key, err := ioutil.ReadFile(Keyfile)
+	if err != nil {
+		FatalError(err, "could not read encryption key from password store")
+	}
+	return key
+}
+
+func encrypt(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -27,13 +34,12 @@ func Encrypt(key, text []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-// EncryptFile takes a key and a filename, and encrypts the file
-func EncryptFile(key []byte, filename string) {
+func encryptFile(key []byte, filename string) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		FatalError(err, "could not read data from file to be encrypted")
 	}
-	cipher, err := Encrypt(key, data)
+	cipher, err := encrypt(key, data)
 	if err != nil {
 		FatalError(nil, "could not encrypt file data")
 	}
@@ -43,8 +49,7 @@ func EncryptFile(key []byte, filename string) {
 	}
 }
 
-// Decrypt takes a key and encrypted text, and returns the unencrypted text
-func Decrypt(key, text []byte) ([]byte, error) {
+func decrypt(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -63,13 +68,12 @@ func Decrypt(key, text []byte) ([]byte, error) {
 	return data, nil
 }
 
-// DecryptFile decrypts a file and writes unencrypted data to file
-func DecryptFile(key []byte, filename string) {
+func decryptFile(key []byte, filename string) {
 	cipher, err := ioutil.ReadFile(filename)
 	if err != nil {
 		FatalError(err, "could not read data from file to be decrypted")
 	}
-	data, err := Decrypt(key, cipher)
+	data, err := decrypt(key, cipher)
 	if err != nil {
 		FatalError(nil, "could not decrypt file data. incorrect key")
 	}

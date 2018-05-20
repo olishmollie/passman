@@ -8,7 +8,7 @@ import (
 // Add inserts a password into storage
 func Add(p, data string) {
 
-	dir, file := SplitDir(p)
+	dir, file := splitDir(p)
 
 	newdir := path.Join(Root, dir)
 	if !DirExists(newdir) {
@@ -23,8 +23,7 @@ func Add(p, data string) {
 		FatalError(err, "could not create password")
 	}
 
-	k := getEncryptionKey()
-	ct, err := Encrypt(k, []byte(data))
+	ct, err := encrypt(getEncryptionKey(), []byte(data))
 	if err != nil {
 		FatalError(err, "could not encrypt password for "+dir)
 	}
