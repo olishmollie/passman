@@ -3,8 +3,6 @@ package passman
 import (
 	"math/rand"
 	"time"
-
-	"github.com/atotto/clipboard"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -18,7 +16,7 @@ const charsetNoSym = "abcdefghijklmnopqrstuvwxyz" +
 
 // Generate takes an options hash and returns a randomly generated password
 // If l == 0, a random length will be provided between 8 and 20
-func Generate(l int, noSym, copy bool) string {
+func Generate(l int, noSym bool) string {
 	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
 	if l == 0 {
 		l = seededRand.Intn(13) + 8
@@ -30,9 +28,6 @@ func Generate(l int, noSym, copy bool) string {
 		} else {
 			b[i] = charset[seededRand.Intn(len(charset))]
 		}
-	}
-	if copy {
-		clipboard.WriteAll(string(b))
 	}
 	return string(b)
 }

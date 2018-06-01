@@ -15,16 +15,16 @@ func TestFind(t *testing.T) {
 	prefix3, pswd3 := "username3", "secret3"
 	prefix4, pswd4 := "website/username4", "secret4"
 	setupFind(root, keyfile)
-	if res := Find(root, keyfile, prefix1, false); res != pswd1 {
+	if res, _ := Find(root, keyfile, prefix1); res != pswd1 {
 		t.Errorf("Expected %s, got %s", pswd1, res)
 	}
-	if res := Find(root, keyfile, prefix2, false); res != pswd2 {
+	if res, _ := Find(root, keyfile, prefix2); res != pswd2 {
 		t.Errorf("Expected %s, got %s", pswd2, res)
 	}
-	if res := Find(root, keyfile, prefix3, false); res != pswd3 {
+	if res, _ := Find(root, keyfile, prefix3); res != pswd3 {
 		t.Errorf("Expected %s, got %s", pswd3, res)
 	}
-	if res := Find(root, keyfile, prefix4, false); res != pswd4 {
+	if res, _ := Find(root, keyfile, prefix4); res != pswd4 {
 		t.Errorf("Expected %s, got %s", pswd4, res)
 	}
 	removeContentsOf(root, ".key")

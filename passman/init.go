@@ -38,5 +38,5 @@ func writeEncryptionKey(keyfile string, key []byte) {
 }
 
 func generateEncryptionKey() []byte {
-	return []byte(Generate(32, false, false))
+	return []byte(Generate(32, false))
 }

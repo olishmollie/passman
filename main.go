@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/atotto/clipboard"
+
 	"github.com/docopt/docopt-go"
 	"github.com/olishmollie/passman/passman"
 )
@@ -69,10 +71,8 @@ func main() {
 		case args["edit"]:
 			passman.Edit(root, keyfile, prefix)
 		case args["generate"]:
-			s := passman.Generate(len, nosym, copy)
-			if !copy {
-				fmt.Println(s)
-			}
+			pswd := passman.Generate(len, nosym)
+			copyOrPrint(pswd, copy)
 		case args["dump"]:
 			passman.Dump(root, root, keyfile, os.Stdout)
 		case args["import"]:
@@ -82,9 +82,11 @@ func main() {
 		case args["unlock"]:
 			passman.FatalError(nil, "passman is not locked")
 		case args["<prefix>"] != nil:
-			p := passman.Find(root, keyfile, prefix, copy)
-			if !copy {
-				fmt.Println(p)
+			p, isDir := passman.Find(root, keyfile, prefix)
+			if isDir {
+				passman.Print(p, 0)
+			} else {
+				copyOrPrint(p, copy)
 			}
 		default:
 			passman.Print(root, 0)
@@ -124,5 +126,13 @@ func checkKey(keyfile string) {
 		} else {
 			passman.FatalError(err, "could not check status of password store")
 		}
+	}
+}
+
+func copyOrPrint(s string, copy bool) {
+	if copy {
+		clipboard.WriteAll(s)
+	} else {
+		fmt.Println(s)
 	}
 }
