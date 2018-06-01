@@ -106,7 +106,7 @@ func main() {
 
 func checkStore(root string) {
 	if !passman.DirExists(root) {
-		passman.FatalError(nil, "no pswd store. try `passman init`")
+		passman.FatalError(nil, "no password store. try `passman init`")
 	}
 }
 
@@ -115,7 +115,7 @@ func checkFPubKey(keyfile string) {
 		if os.IsNotExist(err) {
 			passman.FatalError(nil, "no encryption key. try `passman init`")
 		} else {
-			passman.FatalError(err, "could not check status of pswd store")
+			passman.FatalError(err, "could not check status of password store")
 		}
 	}
 }
@@ -145,27 +145,27 @@ func printUsage() {
 	fmt.Println(usage)
 }
 
-var usage = `usage: passman [command] [args...] [opts...]
+var usage = `usage: passman [-c] [-n] [-l int] [command]
 
 commands: dump edit generate import init rm touch
 
-passman - prints a tree of pswds in store
+passman - displays all passwords in store
 
-passman [opts...] <pswd_file> - prints unencrypted pswd
+passman [opts...] <prefix> - prints unencrypted password to stdout
     -c, --copy
-        copy password to clipboard
+        copies password to clipboard
 
-add <pswd_file> - add <pswd_file> to pswd store
+add <prefix> <password> - add <password> to <prefix> directory
 
-dump - prints unencrypted pswds to stdout
+dump - prints unencrypted passwords to stdout
 
-edit <pswd_file> - edit pswd in editor set to $VISUAL
+edit <prefix> - edit password(s) in <prefix> directory with default editor
 
-generate [opts...] - generates a random pswd
+generate [opts...] - generates a random password
     -c, --copy
-        copies unencrypted pswd to clipboard
+        copies unencrypted password to clipboard
     -l, --len int 
-        specifies length of generated pswd
+        specifies length of generated password
     -n, --nosym 
         generate a password with no symbols
 
@@ -175,11 +175,13 @@ import <infile> - imports passwords from infile.
         Category/anothersite/username another_password
         etc.
 
-init - create pswd store if it doesn't exist, generate encryption key
+init - create password store if it doesn't exist, generate encryption key
 
-lock - encrypts and dumps all passwords into one file
+lock - asks for a password, generates a symmetric cipher, encrypts and dumps store into ~/.passman/.passman.lock.
+	NOTE: passman commands will be unavailable until running 'passman unlock'. this is one way to migrate your passwords.
+	CAUTION: if you forget the password your provide, you will not be able to recover your passwords
 
-rm <pswd_file> - remove <pswd_file> from pswd store
+rm <prefix> - remove password(s) in <prefix> directory from password store
 
 unlock - undoes lock operation
 `
