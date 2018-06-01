@@ -43,21 +43,21 @@ func main() {
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(2, args)
+		checkNumArgs(2, args, cmd)
 		passman.Add(root, keyfile, args[0], args[1])
 	case "rm":
 		checkLock(lockfile)
 		checkStore(root)
-		checkNumArgs(1, args)
+		checkNumArgs(1, args, cmd)
 		passman.Remove(root, args[0])
 	case "edit":
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(1, args)
+		checkNumArgs(1, args, cmd)
 		passman.Edit(root, keyfile, args[0])
 	case "generate":
-		checkNumArgs(0, args)
+		checkNumArgs(0, args, cmd)
 		var s string
 		s = passman.Generate(*lenPtr, *noSymPtr)
 		if *copyPtr {
@@ -69,19 +69,19 @@ func main() {
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(0, args)
+		checkNumArgs(0, args, cmd)
 		passman.Dump(root, root, keyfile, os.Stdout)
 	case "import":
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(1, args)
+		checkNumArgs(1, args, cmd)
 		passman.Import(root, keyfile, args[0])
 	case "lock":
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(0, args)
+		checkNumArgs(0, args, cmd)
 		passman.Lock(root, keyfile, lockfile)
 	case "unlock":
 		if locked(lockfile) {
@@ -93,7 +93,7 @@ func main() {
 		checkLock(lockfile)
 		checkStore(root)
 		checkFPubKey(keyfile)
-		checkNumArgs(0, args)
+		checkNumArgs(0, args, cmd)
 		p := passman.Find(root, keyfile, cmd)
 		if *copyPtr {
 			clipboard.WriteAll(p)
@@ -134,9 +134,9 @@ func locked(lockfile string) bool {
 	return false
 }
 
-func checkNumArgs(num int, args []string) {
+func checkNumArgs(num int, args []string, cmd string) {
 	if len(args) != num {
-		printUsage()
+		fmt.Fprintf(os.Stderr, "incorrect number of arguments for %s. try `passman -h`\n", cmd)
 		os.Exit(1)
 	}
 }
