@@ -7,11 +7,10 @@ import (
 	"os"
 )
 
-// Lock dumps the password store into an encrypted file and removes all passwords and .key
-// CAUTION: if you forget the password you used to generate the encryption key, you will not
-// be able to unencrypt your passwords.
+// Lock dumps the password store into an encrypted file, removes all passwords, and disables most operations
+// CAUTION: if you forget the password you use to lock passman, you will not be able to recover your passwords.
 func Lock(root, keyfile, lockfile string) {
-	Log("CAUTION - if you forget the password you use to lock passman, you will not be able to unencrypt your passwords.")
+	Log("CAUTION - if you forget the password you use to lock passman, you will not be able to recover your passwords.")
 	yes := getln("Do you wish to continue? (y/N) ")
 	if string(yes) == "y" || string(yes) == "Y" {
 		pswd := getUserPswd()
