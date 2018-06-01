@@ -86,7 +86,7 @@ _passman() {
     local root options commands 
     COMPREPLY=()
     root=$HOME/.passman
-    commands="import dump add rm edit generate"
+    commands="init import dump add delete edit generate"
     options="--copy -c"
     generate_options="--nosym -n --len -l"
 
@@ -95,7 +95,7 @@ _passman() {
             add)
                 _passman_folders
                 return 0;;
-            rm)
+            delete)
                 _passman_entries
                 return 0;;
             import)
@@ -113,7 +113,7 @@ _passman() {
                 return 0;;
             --nosym|-n)
                 COMPREPLY=( $(compgen -W "${optons} --len -l generate" -- ${cur}) )
-
+                return 0;;
         esac
     else
         COMPREPLY+=( $(compgen -W "${commands} ${options} ${generate_options}" -- ${cur}) )
