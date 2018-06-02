@@ -32,7 +32,7 @@ Options:
 	-h, --help                Show this screen.
 	-l, --length=<int>        Specify length of generated password.
 	-n, --nosym               Generate password w/ no symbols.
-	-o, --out=<outfile>	      Specify file to be written to [default: pswds~].
+	-o, --out=<outfile>       Specify file to be written to [default: pswds~].
 	-v, --version             Show version.
 `
 
