@@ -28,20 +28,21 @@ Usage:
 	passman [-c] <prefix>
 	passman add <prefix> <password>
 	passman delete <prefix>
-	passman dump
+	passman dump [-o <outfile>]
 	passman edit <prefix>
 	passman generate [-cn] [-l int]
 	passman import <infile>
 	passman init
-	passman lock
-	passman unlock
+	passman nuke [-f]
 	passman -h | --help
 	passman -v | --version
 
 Options:
-	-h, --help               Show this screen.
-	-v, --version            Show version.
-	-c, --copy               Copy to clipboard. 	  
-	-n, --nosym              Generate password w/ no symbols.
-	-l int, --length=int     Specify length of generated password.
+	-c, --copy                Copy to clipboard. 	  
+	-f, --force               Nuke w/o confirmation.
+	-h, --help                Show this screen.
+	-l, --length=<int>        Specify length of generated password.
+	-n, --nosym               Generate password w/ no symbols.
+	-o, --out=<outfile>	      Specify file to be written to [default: pswds~].
+	-v, --version             Show version.
 ```
