@@ -23,5 +23,5 @@ func TestRemove(t *testing.T) {
 }
 
 func setupRemove() {
-	Import(root, keyfile, infile)
+	addPswdFile(root, keyfile, infile)
 }

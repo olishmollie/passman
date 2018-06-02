@@ -7,7 +7,7 @@ import (
 )
 
 func TestImport(t *testing.T) {
-	Import(root, keyfile, infile)
+	addPswdFile(root, keyfile, infile)
 	wantedFiles := []string{"category", "username3", "website"}
 	files := topLevelFiles(root)
 	for i, el := range files {

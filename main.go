@@ -11,28 +11,29 @@ import (
 	"github.com/olishmollie/passman/passman"
 )
 
-var version = "v0.4"
+var version = "v0.5"
 var usage = `Usage:
 	passman
 	passman [-c] <prefix>
 	passman add <prefix> <password>
 	passman delete <prefix>
-	passman dump
+	passman dump [-o <outfile>]
 	passman edit <prefix>
 	passman generate [-cn] [-l int]
 	passman import <infile>
 	passman init
-	passman lock
-	passman unlock
+	passman nuke [-f]
 	passman -h | --help
 	passman -v | --version
 
 Options:
-	-h, --help               Show this screen.
-	-v, --version            Show version.
-	-c, --copy               Copy to clipboard. 	  
-	-n, --nosym              Generate password w/ no symbols.
-	-l int, --length=int     Specify length of generated password.
+	-c, --copy                Copy to clipboard. 	  
+	-f, --force               Nuke w/o confirmation.
+	-h, --help                Show this screen.
+	-l, --length=<int>        Specify length of generated password.
+	-n, --nosym               Generate password w/ no symbols.
+	-o, --out=<outfile>	      Specify file to be written to [default: pswds~].
+	-v, --version             Show version.
 `
 
 func main() {
@@ -44,68 +45,55 @@ func main() {
 
 	root := passman.GetRootDir()
 	keyfile := path.Join(root, ".key")
-	lockfile := path.Join(root, ".passman.lock")
 
 	prefix, _ := args.String("<prefix>")
 	password, _ := args.String("<password>")
 	infile, _ := args.String("<infile>")
+	outfile, _ := args.String("--out")
 	copy, _ := args.Bool("--copy")
 	nosym, _ := args.Bool("--nosym")
+	force, _ := args.Bool("--force")
 	len, _ := args.Int("--length")
 
-	locked := isLocked(lockfile)
-
-	if !locked {
+	switch {
+	case args["--version"]:
+		fmt.Println(version)
+	case args["--help"]:
+		fmt.Println(usage)
+	case args["init"]:
+		passman.Init(root, keyfile)
+	case args["add"]:
 		check(root, keyfile)
-		switch {
-		case args["--version"]:
-			fmt.Println(version)
-		case args["--help"]:
-			fmt.Println(usage)
-		case args["init"]:
-			passman.Init(root, keyfile)
-		case args["add"]:
-			passman.Add(root, keyfile, prefix, password)
-		case args["delete"]:
-			passman.Remove(root, prefix)
-		case args["edit"]:
-			passman.Edit(root, keyfile, prefix)
-		case args["generate"]:
-			pswd := passman.Generate(len, nosym)
-			copyOrPrint(pswd, copy)
-		case args["dump"]:
-			passman.Dump(root, root, keyfile, os.Stdout)
-		case args["import"]:
-			passman.Import(root, keyfile, infile)
-		case args["lock"]:
-			passman.Lock(root, keyfile, lockfile)
-		case args["unlock"]:
-			passman.FatalError(nil, "passman is not locked")
-		case args["<prefix>"] != nil:
-			p, isDir := passman.Find(root, keyfile, prefix)
-			if isDir {
-				passman.Print(p, 0)
-			} else {
-				copyOrPrint(p, copy)
-			}
-		default:
-			passman.Print(root, 0)
+		passman.Add(root, keyfile, prefix, password)
+	case args["delete"]:
+		check(root, keyfile)
+		passman.Remove(root, prefix)
+	case args["edit"]:
+		check(root, keyfile)
+		passman.Edit(root, keyfile, prefix)
+	case args["generate"]:
+		pswd := passman.Generate(len, nosym)
+		copyOrPrint(pswd, copy)
+	case args["dump"]:
+		check(root, keyfile)
+		passman.Dump(root, keyfile, outfile)
+	case args["import"]:
+		passman.Import(root, keyfile, infile)
+	case args["nuke"]:
+		check(root, keyfile)
+		passman.Nuke(root, force)
+	case args["<prefix>"] != nil:
+		check(root, keyfile)
+		p, isDir := passman.Find(root, keyfile, prefix)
+		if isDir {
+			passman.Print(p, 0)
+		} else {
+			copyOrPrint(p, copy)
 		}
-	} else {
-		switch {
-		case args["unlock"]:
-			passman.Unlock(root, keyfile, lockfile)
-		default:
-			passman.FatalError(nil, "passman is locked. try `passman unlock`")
-		}
+	default:
+		check(root, keyfile)
+		passman.Print(root, 0)
 	}
-}
-
-func isLocked(lockfile string) bool {
-	if _, err := os.Stat(lockfile); err == nil {
-		return true
-	}
-	return false
 }
 
 func check(root, keyfile string) {

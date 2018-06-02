@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-// Print displays all the password prefixes in dir.
-func Print(dir string, offset int) {
+// Print displays all the password prefixes in s if s is a prefix, otherwise prints password.
+func Print(s string, offset int) {
 	const lbar = "|\u2014\u2014 "
-	files, err := ioutil.ReadDir(dir)
+	files, err := ioutil.ReadDir(s)
 	if err != nil {
 		FatalError(err, "could not read files in password store")
 	}
@@ -26,7 +26,7 @@ func Print(dir string, offset int) {
 		}
 		fmt.Println(string(spaces) + lbar + n)
 		if f.IsDir() {
-			p := path.Join(dir, n)
+			p := path.Join(s, n)
 			Print(p, offset+2)
 		}
 	}

@@ -31,5 +31,5 @@ func TestFind(t *testing.T) {
 }
 
 func setupFind(root, keyfile string) {
-	Import(root, keyfile, infile)
+	addPswdFile(root, keyfile, infile)
 }
