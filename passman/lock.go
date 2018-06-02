@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-// Lock dumps the password store into an encrypted file, removes all passwords, and disables most operations
+// Lock dumps the password store into an encrypted file, removes all passwords, and disables most operations.
 // CAUTION: if you forget the password you use to lock passman, you will not be able to recover your passwords.
 func Lock(root, keyfile, lockfile string) {
 	Log("CAUTION - if you forget the password you use to lock passman, you will not be able to recover your passwords.")
@@ -33,7 +33,7 @@ func Lock(root, keyfile, lockfile string) {
 	}
 }
 
-// Unlock unencrypts the .passman.lock file and imports all passwords into the password store
+// Unlock unencrypts the .passman.lock file and imports all passwords into the password store.
 func Unlock(root, keyfile, lockfile string) {
 	pswd := getUserPswd()
 	key := hashPswd(pswd)

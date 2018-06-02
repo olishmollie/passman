@@ -5,7 +5,7 @@ import (
 	"path"
 )
 
-// Add inserts a password into storage
+// Add inserts a password into storage.
 func Add(root, keyfile, prefix, data string) {
 
 	dir, file := splitDir(prefix)

@@ -2,7 +2,7 @@ package passman
 
 import "os"
 
-// Init initializes passman by creating a storage directory and generating a cipher key
+// Init initializes passman by creating a storage directory and generating a cipher key.
 func Init(root, keyfile string) {
 	if !DirExists(root) {
 		err := os.Mkdir(root, 0755)

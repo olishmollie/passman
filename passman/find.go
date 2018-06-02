@@ -5,7 +5,7 @@ import (
 	"path"
 )
 
-// Find finds, decrypts, and prints a password to the console
+// Find finds and decrypts a password in the prefix directory.
 func Find(root, keyfile, prefix string) (p string, isDir bool) {
 	fname := path.Join(root, prefix)
 	if pswdExists(fname) {

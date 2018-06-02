@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// Print prints a tree of the password store
+// Print displays all the password prefixes in dir.
 func Print(dir string, offset int) {
 	const lbar = "|\u2014\u2014 "
 	files, err := ioutil.ReadDir(dir)
