@@ -86,9 +86,10 @@ _passman() {
     local root options commands 
     COMPREPLY=()
     root=$HOME/.passman
-    commands="init import dump add delete edit generate"
+    commands="init import dump add delete edit generate nuke"
     options="--copy -c"
     generate_options="--nosym -n --len -l"
+    nuke_options="-f --force"
 
     if [[ $COMP_CWORD -gt 1 ]]; then
         case "${COMP_WORDS[1]}" in
@@ -113,6 +114,9 @@ _passman() {
                 return 0;;
             --nosym|-n)
                 COMPREPLY=( $(compgen -W "${optons} --len -l generate" -- ${cur}) )
+                return 0;;
+            nuke)
+                COMPREPLY=( $(compgen -W "${nuke_options}" -- ${cur}) )
                 return 0;;
         esac
     else
