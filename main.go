@@ -11,7 +11,7 @@ import (
 	"github.com/olishmollie/passman/passman"
 )
 
-var version = "v0.5.6"
+var version = "v0.5.9"
 var usage = `Usage:
 	passman
 	passman [-c] <prefix>
