@@ -3,7 +3,8 @@ A UNIX password manager
 
 #### Installation
 ```
-$ go get github.com/olishmollie/passman
+$ brew tap olishmollie/passman https://github.com/olishmollie/passman
+$ brew install passman
 ```
 
 #### Getting started
