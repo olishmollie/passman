@@ -78,6 +78,7 @@ func main() {
 		check(root, keyfile)
 		passman.Dump(root, keyfile, outfile)
 	case args["import"]:
+		checkStore(root)
 		passman.Import(root, keyfile, infile)
 	case args["nuke"]:
 		check(root, keyfile)

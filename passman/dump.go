@@ -12,7 +12,6 @@ import (
 
 // Dump re-encrypts passwords using a user provided password and writes them to outfile.
 func Dump(root, keyfile, outfile string) {
-
 	pswd := getUserPswd()
 	k := hashPswd(pswd)
 
