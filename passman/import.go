@@ -14,6 +14,7 @@ func Import(root, keyfile, infile string) {
 	newKey := generateEncryptionKey()
 	writeEncryptionKey(keyfile, newKey)
 	addPswdFile(root, keyfile, infile)
+	encryptFile(key[:], infile)
 }
 
 func addPswdFile(root, keyfile, infile string) {
