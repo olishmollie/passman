@@ -4,8 +4,7 @@ A UNIX password manager
 #### Installation
 Passman is distributed via Homebrew.
 ```
-$ brew tap olishmollie/homebrew-passman/passman
-$ brew install passman
+$ brew install olishmollie/tools/passman
 ```
 
 #### Getting started
