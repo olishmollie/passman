@@ -10,11 +10,15 @@ import (
 func Import(root, keyfile, infile string) {
 	pswd := getUserPswd()
 	key := hashPswd(pswd)
-	decryptFile(key[:], infile)
+	tmp := copyFile(infile)
+	decryptFile(key[:], tmp)
 	newKey := generateEncryptionKey()
 	writeEncryptionKey(keyfile, newKey)
-	addPswdFile(root, keyfile, infile)
-	encryptFile(key[:], infile)
+	addPswdFile(root, keyfile, tmp)
+	err := os.Remove(tmp)
+	if err != nil {
+		FatalError(err, "could not remove tmp file during import")
+	}
 }
 
 func addPswdFile(root, keyfile, infile string) {
