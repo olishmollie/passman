@@ -12,7 +12,7 @@ func Import(root, keyfile, infile string) {
 	key := hashPswd(pswd)
 	tmp := copyFile(infile)
 	decryptFile(key[:], tmp)
-	newKey := generateEncryptionKey()
+	newKey := GenerateEncryptionKey()
 	writeEncryptionKey(keyfile, newKey)
 	addPswdFile(root, keyfile, tmp)
 	err := os.Remove(tmp)

@@ -30,8 +30,8 @@ func getUserPswd() []byte {
 	var pswd []byte
 	// TODO - limit number of times passphrase can be entered
 	for {
-		pswd = getln("Enter your passphrase: ")
-		pswd2 := getln("Confirm passphrase: ")
+		pswd = getln(os.Stdin, "Enter your passphrase: ")
+		pswd2 := getln(os.Stdin, "Confirm passphrase: ")
 		if string(pswd) != string(pswd2) {
 			fmt.Println("Passphrases don't match.")
 		} else {

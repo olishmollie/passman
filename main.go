@@ -36,6 +36,8 @@ Options:
 	-v, --version             Show version.
 `
 
+var rootName string
+
 func main() {
 
 	args, err := docopt.ParseDoc(usage)
@@ -43,7 +45,7 @@ func main() {
 		passman.FatalError(err, "unable to parse command line options")
 	}
 
-	root := passman.GetRootDir()
+	root := passman.GetRootDir(rootName)
 	keyfile := path.Join(root, ".key")
 
 	prefix, _ := args.String("<prefix>")
@@ -67,7 +69,7 @@ func main() {
 		passman.Add(root, keyfile, prefix, password)
 	case args["delete"]:
 		check(root, keyfile)
-		passman.Remove(root, prefix)
+		passman.Delete(root, prefix)
 	case args["edit"]:
 		check(root, keyfile)
 		passman.Edit(root, keyfile, prefix)

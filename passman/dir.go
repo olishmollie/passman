@@ -21,9 +21,9 @@ func DirExists(d string) bool {
 }
 
 // GetRootDir returns ~/.passman
-func GetRootDir() string {
+func GetRootDir(rootName string) string {
 	h := getHomeDir()
-	return path.Join(h, ".passman")
+	return path.Join(h, rootName)
 }
 
 func getHomeDir() string {

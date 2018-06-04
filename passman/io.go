@@ -4,18 +4,19 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 )
 
-func getln(msg string) []byte {
+func getln(in io.Reader, msg string) []byte {
 	fmt.Print(msg)
-	reader := bufio.NewReader(os.Stdin)
-	in, err := reader.ReadBytes('\n')
+	reader := bufio.NewReader(in)
+	input, err := reader.ReadBytes('\n')
 	if err != nil {
 		FatalError(err, "could not read from stdin")
 	}
-	out := bytes.TrimRight(in, "\n")
+	out := bytes.TrimRight(input, "\n")
 	return out
 }
 

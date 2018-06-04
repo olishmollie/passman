@@ -10,6 +10,11 @@ import (
 	"io/ioutil"
 )
 
+// GenerateEncryptionKey generates a random 32 byte encryption key.
+func GenerateEncryptionKey() []byte {
+	return []byte(Generate(32, false))
+}
+
 func getEncryptionKey(keyfile string) []byte {
 	key, err := ioutil.ReadFile(keyfile)
 	if err != nil {

@@ -16,7 +16,7 @@ func Init(root, keyfile string) {
 		FatalError(nil, "encryption key detected. remove `~/.passman/.key` before reinitializing")
 	}
 
-	key := generateEncryptionKey()
+	key := GenerateEncryptionKey()
 	Log("writing encryption key to .passman/.key...")
 	writeEncryptionKey(keyfile, key)
 	Log("passman initialized successfully")
@@ -35,8 +35,4 @@ func writeEncryptionKey(keyfile string, key []byte) {
 	if err != nil {
 		FatalError(err, "could not close key file")
 	}
-}
-
-func generateEncryptionKey() []byte {
-	return []byte(Generate(32, false))
 }
