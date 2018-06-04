@@ -11,7 +11,7 @@ func Add(root, keyfile, prefix, data string) {
 	dir, file := splitDir(prefix)
 
 	newdir := path.Join(root, dir)
-	if !DirExists(newdir) {
+	if !FileExists(newdir) {
 		err := os.MkdirAll(newdir, 0755)
 		if err != nil {
 			FatalError(err, "could not create password store")

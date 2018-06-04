@@ -19,7 +19,7 @@ func Find(root, keyfile, prefix string) (p string, isDir bool) {
 		}
 		p, isDir = string(pswd), false
 		return
-	} else if DirExists(fname) {
+	} else if FileExists(fname) {
 		p, isDir = fname, true
 		return
 	}

@@ -12,8 +12,7 @@ import (
 )
 
 var usage = `Usage:
-	passman
-	passman [-c] <prefix>
+	passman [[-c] <prefix>]
 	passman add <prefix> <password>
 	passman delete <prefix>
 	passman dump [-o <outfile>]
@@ -106,7 +105,7 @@ func check(root, keyfile string) {
 }
 
 func checkStore(root string) {
-	if !passman.DirExists(root) {
+	if !passman.FileExists(root) {
 		passman.FatalError(nil, "no password store. try `passman init`")
 	}
 }

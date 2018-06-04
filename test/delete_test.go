@@ -21,7 +21,7 @@ func TestDelete(t *testing.T) {
 		t.Errorf("could not remove mock password\n%s", err)
 	}
 
-	if passman.DirExists(path.Join(root, "delete/test")) {
+	if passman.FileExists(path.Join(root, "delete/test")) {
 		t.Error("Remove did not delete prefix directory")
 	}
 

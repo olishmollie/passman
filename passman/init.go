@@ -4,7 +4,7 @@ import "os"
 
 // Init initializes passman by creating a storage directory and generating a cipher key.
 func Init(root, keyfile string) {
-	if !DirExists(root) {
+	if !FileExists(root) {
 		err := os.Mkdir(root, 0755)
 		if err != nil {
 			FatalError(err, "could not create pswd store")

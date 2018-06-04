@@ -6,12 +6,12 @@ import (
 )
 
 // FatalError writes an error to stderr and exits.
-func FatalError(err error, msg string) {
+func FatalError(err error, format string, args ...interface{}) {
 	if err == nil {
-		os.Stderr.WriteString("fatal: " + msg + "\n")
+		fmt.Fprintf(os.Stderr, "fatal: "+format+"\n", args...)
 		os.Exit(1)
 	}
-	os.Stderr.WriteString("fatal: " + msg + "\n" + err.Error() + "\n")
+	fmt.Fprintf(os.Stderr, "fatal: "+format+"\n"+err.Error()+"\n", args...)
 	os.Exit(1)
 }
 

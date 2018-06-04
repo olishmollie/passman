@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-// DirExists returns whether given directory exists.
-func DirExists(d string) bool {
-	_, err := os.Stat(d)
+// FileExists returns whether file specifed by name exists.
+func FileExists(name string) bool {
+	_, err := os.Stat(name)
 	if os.IsNotExist(err) {
 		return false
 	} else if err != nil {
-		FatalError(err, "could not find dir "+d)
+		FatalError(err, "could not find file "+name)
 	}
 	return true
 }

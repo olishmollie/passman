@@ -8,6 +8,9 @@ import (
 
 // Import unencrypts infile and imports passwords into store.
 func Import(root, keyfile, infile string) {
+	if !FileExists(infile) {
+		FatalError(nil, "file %s doesn't exist", infile)
+	}
 	pswd := getUserPswd()
 	key := hashPswd(pswd)
 	tmp := copyFile(infile)
