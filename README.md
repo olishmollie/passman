@@ -10,13 +10,36 @@ $ brew install olishmollie/tools/passman
 #### Getting started
 Passman stores encrypted passwords in a directory in your home folder. To get started, run `passman init`, which will create the password store at `~/.passman` and generate an encryption key. 
 
-Store a password like this:
+Encrypt and store a password:
 ```
-passman add Email/myaccount secret
+$ passman add foo/bar baz
+$ passman add baz/boom bang
 ```
-And copy it to your clipboard like this:
+See your password store:
 ```
-passman -c Email/myaccount
+$ passman
+Password Store
+├── baz
+│   └── boom
+└── foo
+    └── bar
+```
+Print a password to stdout:
+```
+$ passman foo/bar
+baz
+```
+Or copy it to clipboard:
+```
+$ passman -c foo/bar
+```
+Dump encrypted passwords into backup file:
+```
+$ passman dump -o pswds.bak
+```
+Import a dump file:
+```
+$ passman import pswds.bak
 ```
 
 #### Tab Completion
