@@ -12,7 +12,8 @@ import (
 )
 
 var usage = `Usage:
-	passman [[-c] <prefix>]
+	passman
+	passman [-c] <prefix>
 	passman add <prefix> <password>
 	passman delete <prefix>
 	passman dump [-o <outfile>]
